@@ -20,6 +20,56 @@
     --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
+.header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 0;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border-secondary);
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-profile img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--color-border-secondary);
+}
+
+.user-profile button {
+    background-color: var(--color-accent);
+    color: var(--color-accent-text);
+    border: none;
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.user-profile button:hover {
+    background-color: #0056b3;
+}
+
+@media (prefers-color-scheme: dark) {
+    .user-profile button:hover {
+        background-color: #0a64c7;
+    }
+}
+
 @media (prefers-color-scheme: dark) {
     :root {
         --color-background-primary: #121212;
@@ -155,18 +205,142 @@ button[disabled] {
     background-color: #0056b3;
 }
 
+.calendar-container {
+    background: var(--color-background-secondary);
+    padding: 1.5rem;
+    border-radius: var(--border-radius-lg);
+    border: 1px solid var(--color-border-secondary);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.calendar-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.calendar-header button {
+    background: none;
+    border: 1px solid var(--color-border-secondary);
+    color: var(--color-text-primary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease-in-out;
+}
+
+.calendar-header button:hover {
+    background: var(--color-accent);
+    color: var(--color-accent-text);
+    border-color: var(--color-accent);
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+}
+
+.calendar-day {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    border: 2px solid transparent;
+}
+
+.calendar-day.workout {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.calendar-day.rest {
+    background-color: #fef9c3;
+    color: #854d0e;
+}
+
+.calendar-day.missed {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.calendar-day.today {
+    border-color: var(--color-accent);
+    font-weight: bold;
+}
+
+.calendar-day.empty {
+    background: none;
+}
+
+.calendar-day-name {
+    font-weight: 600;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+    margin-bottom: 0.5rem;
+}
+
+.calendar-legend {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+    font-size: 0.875rem;
+}
+
+.legend-color {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.legend-color.workout { background-color: #dcfce7; }
+.legend-color.rest { background-color: #fef9c3; }
+.legend-color.missed { background-color: #fee2e2; }
+
 @media (prefers-color-scheme: dark) {
     #day-mon-complete-btn:hover:not(:disabled), #day-tue-complete-btn:hover:not(:disabled) {
         background-color: #0a64c7;
     }
+    .calendar-day.workout { background-color: #1a2e26; color: #34d399; }
+    .calendar-day.rest { background-color: #362f1c; color: #fde047; }
+    .calendar-day.missed { background-color: #3f2323; color: #fca5a5; }
+    .legend-color.workout { background-color: #1a2e26; }
+    .legend-color.rest { background-color: #362f1c; }
+    .legend-color.missed { background-color: #3f2323; }
 }
 </style>
 
 <div class="prog">
+<div class="header-bar">
+    <div class="logo">Workout Tracker</div>
+    <div id="user-profile" class="user-profile">
+        <!-- This will be populated by JS -->
+    </div>
+</div>
 <div class="tab-nav">
     <button class="tab-btn active" onclick="showTab('today', this)">Today's Workout</button>
   <button class="tab-btn" onclick="showTab('schedule',this)">Schedule</button>
   <button class="tab-btn" onclick="showTab('sessions',this)">Daily Sessions</button>
+  <button class="tab-btn" onclick="showTab('progress',this)">Progress</button>
   <button class="tab-btn" onclick="showTab('mobility',this)">Mobility</button>
   <button class="tab-btn" onclick="showTab('conditioning',this)">Conditioning</button>
   <button class="tab-btn" onclick="showTab('progression',this)">Progression</button>
@@ -895,6 +1069,26 @@ button[disabled] {
   </div>
 </div>
 
+<!-- PROGRESS TAB -->
+<div id="tab-progress" class="tab-content">
+    <div class="prog-h2">Monthly Progress</div>
+    <div class="calendar-container">
+        <div class="calendar-header">
+            <button id="prev-month-btn">&lt;</button>
+            <h3 id="month-year-header"></h3>
+            <button id="next-month-btn">&gt;</button>
+        </div>
+        <div class="calendar-grid" id="calendar-grid">
+            <!-- Calendar days will be generated by JavaScript -->
+        </div>
+        <div class="calendar-legend">
+            <div><span class="legend-color workout"></span> Workout</div>
+            <div><span class="legend-color rest"></span> Rest</div>
+            <div><span class="legend-color missed"></span> Missed</div>
+        </div>
+    </div>
+</div>
+
 </div>
 
 <script>
@@ -992,4 +1186,88 @@ function showDay(id, btn) {
   }
   btn.classList.add('active');
 }
+
+// --- Calendar Grid Logic ---
+document.addEventListener('DOMContentLoaded', function() {
+    const prevMonthBtn = document.getElementById('prev-month-btn');
+    const nextMonthBtn = document.getElementById('next-month-btn');
+
+    let currentDate = new Date();
+
+    function renderCalendar(date) {
+        const monthYearHeader = document.getElementById('month-year-header');
+        const calendarGrid = document.getElementById('calendar-grid');
+
+        calendarGrid.innerHTML = ''; // Clear previous grid
+
+        const month = date.getMonth();
+        const year = date.getFullYear();
+
+        monthYearHeader.textContent = `${date.toLocaleString('default', { month: 'long' })} ${year}`;
+
+        const firstDayOfMonth = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+        // Add day names
+        const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        dayNames.forEach(name => {
+            const dayNameCell = document.createElement('div');
+            dayNameCell.classList.add('calendar-day-name');
+            dayNameCell.textContent = name;
+            calendarGrid.appendChild(dayNameCell);
+        });
+
+        // Add empty cells for days before the 1st
+        for (let i = 0; i < firstDayOfMonth; i++) {
+            const emptyCell = document.createElement('div');
+            emptyCell.classList.add('calendar-day', 'empty');
+            calendarGrid.appendChild(emptyCell);
+        }
+
+        // Mock data - replace with actual data from your API later
+        const workoutData = {
+            '2026-05-01': 'workout',
+            '2026-05-02': 'workout',
+            '2026-05-03': 'rest',
+            '2026-05-04': 'workout', // Today
+        };
+
+        const today = new Date();
+        const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayCell = document.createElement('div');
+            dayCell.classList.add('calendar-day');
+            dayCell.textContent = day;
+
+            const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+            if (workoutData[dateString]) {
+                dayCell.classList.add(workoutData[dateString]);
+            } else if (new Date(dateString) < new Date(todayString)) {
+                dayCell.classList.add('missed');
+            }
+            
+            if (dateString === todayString) {
+                dayCell.classList.add('today');
+            }
+
+            calendarGrid.appendChild(dayCell);
+        }
+    }
+
+    prevMonthBtn.addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() - 1);
+        renderCalendar(currentDate);
+    });
+
+    nextMonthBtn.addEventListener('click', () => {
+        currentDate.setMonth(currentDate.getMonth() + 1);
+        renderCalendar(currentDate);
+    });
+
+    // Initial render
+    renderCalendar(currentDate);
+});
 </script>
