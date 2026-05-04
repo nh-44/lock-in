@@ -1,0 +1,995 @@
+
+<style>
+:root {
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --color-background-primary: #ffffff;
+    --color-background-secondary: #f7f7f8;
+    --color-border-primary: #e5e5e5;
+    --color-border-secondary: #ebebec;
+    --color-border-tertiary: #dedede;
+    --color-text-primary: #1c1c1e;
+    --color-text-secondary: #5a5a5e;
+    --color-text-tertiary: #9a9a9e;
+    --color-accent: #007aff;
+    --color-accent-text: #ffffff;
+    --color-rest-bg: #f0fdf4;
+    --color-rest-text: #166534;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --color-background-primary: #121212;
+        --color-background-secondary: #1e1e1e;
+        --color-border-primary: #2c2c2e;
+        --color-border-secondary: #3a3a3c;
+        --color-border-tertiary: #4a4a4c;
+        --color-text-primary: #f2f2f7;
+        --color-text-secondary: #a1a1a6;
+        --color-text-tertiary: #7d7d82;
+        --color-accent: #0a84ff;
+        --color-rest-bg: #1a2e26;
+        --color-rest-text: #34d399;
+    }
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+body {
+    background-color: var(--color-background-primary);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+    padding: 1rem;
+}
+
+.prog{
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.tab-nav{display:flex;border-bottom:1px solid var(--color-border-secondary);margin-bottom:1.5rem;overflow-x:auto;gap:0.5rem;}
+.tab-btn{font-size:14px;padding:10px 16px;border:none;background:none;color:var(--color-text-secondary);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .2s ease-in-out}
+.tab-btn:hover{color:var(--color-text-primary);background-color: var(--color-background-secondary); border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;}
+.tab-btn.active{color:var(--color-accent);border-bottom-color:var(--color-accent);font-weight:600}
+
+.tab-content{display:none}
+.tab-content.visible{display:block; animation: fadeIn 0.5s;}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.day-nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.5rem}
+.day-btn{font-size:12px;padding:6px 14px;border-radius:20px;border:1px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;transition:all .2s ease-in-out}
+.day-btn:hover{background:var(--color-background-secondary); border-color: var(--color-accent);}
+.day-btn.active{background:var(--color-accent);color:var(--color-accent-text);border-color:var(--color-accent);font-weight:600; box-shadow: var(--shadow-sm);}
+
+.session{display:none}
+.session.visible{display:block; animation: fadeIn 0.5s;}
+.session-title{font-size:20px;font-weight:600;color:var(--color-text-primary);margin-bottom:4px}
+.session-goal{font-size:14px;color:var(--color-text-secondary);margin-bottom:1rem;line-height:1.6}
+
+.meta-row{display:flex;gap:12px;flex-wrap:wrap;padding:10px 14px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);margin-bottom:1.5rem;font-size:12px;color:var(--color-text-secondary); border: 1px solid var(--color-border-secondary);}
+
+.section-card{background:var(--color-background-primary);border:1px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);margin-bottom:1rem;overflow:hidden; box-shadow: var(--shadow-sm); transition: box-shadow 0.2s ease-in-out;}
+.section-card:hover { box-shadow: var(--shadow-md); }
+
+.section-header{padding:10px 14px;background:var(--color-background-secondary);font-size:13px;font-weight:600;color:var(--color-text-primary);display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--color-border-secondary)}
+.sdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+
+.muscle-group{padding:12px 14px;}
+
+.badge{display:inline-block;font-size:11px;font-weight:500;padding:3px 8px;border-radius:12px; line-height: 1.2;}
+.b-pick{background:#e0f2fe;color:#0ea5e9}
+.b-sets{background:#ecfccb;color:#84cc16}
+.b-new{background:#fff1f2;color:#f43f5e}
+
+.ex-table{width:100%;border-collapse:collapse;font-size:13px}
+.ex-table th, .ex-table td {
+    padding: 10px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border-secondary);
+}
+.ex-table th {
+    background-color: var(--color-background-secondary);
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+}
+.ex-table tr:last-child td { border-bottom: none; }
+.ex-table tr:hover {
+    background-color: var(--color-background-secondary);
+}
+.ex-table input[type="checkbox"] {
+    margin-right: 10px;
+    cursor: pointer;
+    accent-color: var(--color-accent);
+}
+
+#completion-status {
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+.rank{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;font-size:10px;font-weight:600;flex-shrink:0; color: white;}
+.r1{background:#f97316;}
+.r2{background:#64748b;}
+.r3{background:#3b82f6;}
+.r4{background:#10b981;}
+.r5{background:#8b5cf6;}
+.r6{background:#ef4444;}
+
+.prog-h2{font-size:18px;font-weight:600;color:var(--color-text-primary);margin-bottom:1rem;padding-bottom:8px;border-bottom:1px solid var(--color-border-secondary)}
+
+.note-box{background:var(--color-background-secondary);border-left:4px solid var(--color-accent);border-radius:0 var(--border-radius-md) var(--border-radius-md) 0;padding:12px 16px;font-size:13px;color:var(--color-text-secondary);margin-bottom:1.2rem;line-height:1.6}
+
+.rest-card{background:var(--color-rest-bg);border: 1px solid var(--color-border-secondary); border-radius:var(--border-radius-lg);padding:2rem;text-align:center; color: var(--color-rest-text);}
+
+.new-pill{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;background:var(--color-accent);color:var(--color-accent-text);margin-left:5px;vertical-align:middle}
+
+button[disabled] {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#day-mon-complete-btn, #day-tue-complete-btn {
+    background-color: var(--color-accent);
+    color: var(--color-accent-text);
+    border: none;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 1rem;
+    width: 100%;
+}
+
+#day-mon-complete-btn:hover:not(:disabled), #day-tue-complete-btn:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+@media (prefers-color-scheme: dark) {
+    #day-mon-complete-btn:hover:not(:disabled), #day-tue-complete-btn:hover:not(:disabled) {
+        background-color: #0a64c7;
+    }
+}
+</style>
+
+<div class="prog">
+<div class="tab-nav">
+    <button class="tab-btn active" onclick="showTab('today', this)">Today's Workout</button>
+  <button class="tab-btn" onclick="showTab('schedule',this)">Schedule</button>
+  <button class="tab-btn" onclick="showTab('sessions',this)">Daily Sessions</button>
+  <button class="tab-btn" onclick="showTab('mobility',this)">Mobility</button>
+  <button class="tab-btn" onclick="showTab('conditioning',this)">Conditioning</button>
+  <button class="tab-btn" onclick="showTab('progression',this)">Progression</button>
+</div>
+
+<!-- TODAY'S WORKOUT -->
+<div id="tab-today" class="tab-content visible">
+    <div id="todays-workout-content"></div>
+</div>
+
+<!-- SCHEDULE -->
+<div id="tab-schedule" class="tab-content">
+  <div class="note-box">
+    <strong>v2 improvements added:</strong> Plyometrics on Thu + Sat, neck & foot work in warm-ups, 4-7-8 sleep breathwork, Saturday PM swapped to moderate tempo (not full 4×4s after heavy pulling), Week 1 ramp-in guidance, and 5–6 ranked exercise options per muscle group throughout.
+  </div>
+  <div class="prog-h2">7-Day Weekly Overview</div>
+  <table class="week-table">
+    <thead><tr><th>Day</th><th>Session</th><th>Type</th><th>Time</th><th>Key Focus</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Mon</strong></td><td>Upper Functional Strength</td><td><span class="badge b-train">Train</span></td><td>75 min</td><td>Push/Pull, grip, shoulder health, neck</td></tr>
+      <tr><td><strong>Tue</strong></td><td>Lower Strength + Carry</td><td><span class="badge b-train">Train</span></td><td>80 min</td><td>Squat/Hinge, unilateral, hip/knee, foot strength</td></tr>
+      <tr><td><strong>Wed</strong></td><td>AM: Breathwork + Mobility · PM: Zone 2 Run</td><td><span class="badge b-cond">Conditioning</span></td><td>30+40 min</td><td>Lung capacity, thoracic, aerobic base</td></tr>
+      <tr><td><strong>Thu</strong></td><td>Rotation + Anti-Rotation + Plyometrics <span class="new-pill">updated</span></td><td><span class="badge b-train">Train</span></td><td>75 min</td><td>Rotation, core stability, explosive power, tendon stiffness</td></tr>
+      <tr><td><strong>Fri</strong></td><td>Active Recovery + Full Mobility</td><td><span class="badge b-active">Recovery</span></td><td>40 min</td><td>Hip, shoulder, thoracic, 4-7-8 sleep breathwork</td></tr>
+      <tr><td><strong>Sat</strong></td><td>AM: Upper Pull + Forearms · PM: Tempo Run <span class="new-pill">updated</span></td><td><span class="badge b-train">Train</span></td><td>60+30 min</td><td>Pull emphasis, forearms, moderate conditioning</td></tr>
+      <tr><td><strong>Sun</strong></td><td>Full Rest</td><td><span class="badge b-rest">Rest</span></td><td>—</td><td>Recovery, sleep, parasympathetic reset</td></tr>
+    </tbody>
+  </table>
+  <div class="info-grid">
+    <div class="info-card"><div class="info-label">Training days</div><div class="info-val">4 strength + 2 conditioning</div></div>
+    <div class="info-card"><div class="info-label">Max consecutive days</div><div class="info-val">3 (Mon–Wed), reset Thu</div></div>
+    <div class="info-card"><div class="info-label">Muscle frequency</div><div class="info-val">All groups 2× per week</div></div>
+    <div class="info-card"><div class="info-label">Exercises per muscle</div><div class="info-val">Pick 2 from 5–6 ranked options</div></div>
+    <div class="info-card"><div class="info-label">New additions</div><div class="info-val">Plyo, neck, foot, sleep breathing</div></div>
+    <div class="info-card"><div class="info-label">Deload</div><div class="info-val">Every 4th week · 50% load</div></div>
+  </div>
+  <div class="note-box" style="border-color:#1D9E75">
+    <strong>How to use the exercise lists:</strong> Each muscle group shows 5–6 ranked exercises. <span class="badge b-pick" style="font-size:10px">Pick 2</span> based on equipment availability. Rotate your choices week to week to keep things fresh and hit the muscle from different angles. Rank 1–2 are highest priority; 5–6 are great alternatives or deload-week substitutes.
+  </div>
+</div>
+
+<!-- SESSIONS -->
+<div id="tab-sessions" class="tab-content">
+  <div class="day-nav">
+    <button class="day-btn active" onclick="showDay('mon',this)">Monday</button>
+    <button class="day-btn" onclick="showDay('tue',this)">Tuesday</button>
+    <button class="day-btn" onclick="showDay('wed',this)">Wednesday</button>
+    <button class="day-btn" onclick="showDay('thu',this)">Thursday</button>
+    <button class="day-btn" onclick="showDay('fri',this)">Friday</button>
+    <button class="day-btn" onclick="showDay('sat',this)">Saturday</button>
+    <button class="day-btn" onclick="showDay('sun',this)">Sunday</button>
+  </div>
+
+  <!-- MONDAY -->
+  <div id="day-mon" class="session visible">
+    <div class="session-title">Monday — Upper Functional Strength</div>
+    <div class="session-goal">Push, pull, shoulder/elbow health, grip, forearms, neck. Pick 2 exercises per muscle group from the ranked lists below.</div>
+    <div class="meta-row"><span>⏱ 75 min</span><span>🔥 Warm-up 10 min</span><span>💪 Main 45 min</span><span>🧘 Mobility 10 min</span><span>🌬 Breathwork 5 min</span></div>
+
+    <div class="section-card" data-muscle-group="Warm-Up" data-required="6">
+      <div class="section-header"><div class="sdot" style="background:#378ADD"></div>Warm-Up (10 min) — Shoulder + Elbow + Neck Prep</div>
+      <div class="muscle-group">
+        <div class="ex-table-wrap">
+          <table class="ex-table">
+            <thead><tr><th>#</th><th>Exercise</th><th>Prescription</th><th>Key Cue</th><th>Done</th></tr></thead>
+            <tbody>
+              <tr><td><span class="rank r1">1</span></td><td>Band Pull-Apart</td><td>3×15, no rest, tempo 2-0-2</td><td>Soft elbows, squeeze blades</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+              <tr><td><span class="rank r2">2</span></td><td>Dead Hang (passive)</td><td>2×20–30 sec</td><td>Decompress shoulder, breathe diaphragmatically</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+              <tr><td><span class="rank r3">3</span></td><td>Wall Slides</td><td>2×10, controlled</td><td>Forearms and elbows contact wall throughout</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+              <tr><td><span class="rank r4">4</span></td><td>Wrist Circles + Loaded Flexion</td><td>10 circles + 10 slow flexions (light DB)</td><td>Elbow tendon prehab — never skip</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+              <tr><td><span class="rank r5">5</span></td><td>Neck CARs <span class="new-pill">new</span></td><td>5 slow circles each direction</td><td>Maximum active range, no compensation. Cervical joint health.</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+              <tr><td><span class="rank r6">6</span></td><td>Chin Tucks (cervical retraction)</td><td>2×15 reps</td><td>Double chin position — counteracts forward head posture from lifting</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card" data-muscle-group="Horizontal Push" data-required="2">
+      <div class="section-header"><div class="sdot" style="background:#1D9E75"></div>Horizontal Push — <span class="badge b-pick" style="margin-left:4px">Pick 2</span><span class="badge b-sets" style="margin-left:4px">4×5–8 reps · Rest 90s</span></div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>#</th><th>Exercise</th><th>Tempo</th><th>Why it ranks here</th><th>Done</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rank r1">1</span></td><td>Barbell Bench Press</td><td>3-1-2</td><td>Best absolute load for chest/tricep strength</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+            <tr><td><span class="rank r2">2</span></td><td>Single-Arm DB Floor Press</td><td>3-1-2</td><td>Anti-rotation demand, elbow-safe range of motion</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+            <tr><td><span class="rank r3">3</span></td><td>Ring / TRX Push-Up</td><td>3-1-2</td><td>Unstable surface = shoulder stabiliser activation</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+            <tr><td><span class="rank r4">4</span></td><td>Incline DB Press</td><td>3-1-2</td><td>Upper chest + front delt, varied angle from flat</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+            <tr><td><span class="rank r5">5</span></td><td>Landmine Press (single-arm)</td><td>2-1-2</td><td>Elbow-safest pressing option, great for overhead pattern</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+            <tr><td><span class="rank r6">6</span></td><td>Push-Up with Pause</td><td>3-2-1</td><td>Bodyweight, no equipment, scapular health emphasis</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card" data-muscle-group="Vertical Push" data-required="2">
+      <div class="section-header"><div class="sdot" style="background:#1D9E75"></div>Vertical Push — <span class="badge b-pick" style="margin-left:4px">Pick 2</span><span class="badge b-sets" style="margin-left:4px">3×5–8 reps · Rest 90s</span></div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>#</th><th>Exercise</th><th>Tempo</th><th>Why it ranks here</th><th>Done</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rank r1">1</span></td><td>Barbell Overhead Press (standing)</td><td>3-1-2</td><td>Most functional vertical press, core demand</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+            <tr><td><span class="rank r2">2</span></td><td>Landmine Press (bilateral)</td><td>2-1-2</td><td>Safest overhead for shoulder impingement risk</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+            <tr><td><span class="rank r3">3</span></td><td>Arnold Press (seated or standing)</td><td>3-1-2</td><td>Full rotational range, hits all 3 delt heads</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+            <tr><td><span class="rank r4">4</span></td><td>Pike Push-Up or HSPU</td><td>3-1-2</td><td>Bodyweight overhead, good if no barbell available</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+            <tr><td><span class="rank r5">5</span></td><td>Single-Arm DB Press (standing)</td><td>3-1-2</td><td>Anti-lateral flexion demand + unilateral</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+            <tr><td><span class="rank r6">6</span></td><td>Resistance Band Overhead Press</td><td>2-0-2</td><td>Travel/minimal kit option, high rep deload week</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card" data-muscle-group="Vertical Pull" data-required="2">
+      <div class="section-header"><div class="sdot" style="background:#7F77DD"></div>Vertical Pull — <span class="badge b-pick" style="margin-left:4px">Pick 2</span><span class="badge b-sets" style="margin-left:4px">4×5–8 reps · Rest 90s</span></div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>#</th><th>Exercise</th><th>Tempo</th><th>Why it ranks here</th><th>Done</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rank r1">1</span></td><td>Weighted Pull-Up (pronated)</td><td>2-1-3</td><td>Best vertical pull for lat strength and grip</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+            <tr><td><span class="rank r2">2</span></td><td>Ring Pull-Up</td><td>2-1-3</td><td>Neutral grip, shoulder-friendly, forearm demand</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+            <tr><td><span class="rank r3">3</span></td><td>Lat Pulldown (overhand)</td><td>2-1-3</td><td>Load adjustable, good for high-rep accessory</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+            <tr><td><span class="rank r4">4</span></td><td>Band-Assisted Pull-Up</td><td>2-1-3</td><td>Best regression if bodyweight pull-ups are hard</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+            <tr><td><span class="rank r5">5</span></td><td>Straight-Arm Pulldown (cable)</td><td>2-0-2</td><td>Lat isolation, elbow-safe, good finisher</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+            <tr><td><span class="rank r6">6</span></td><td>TRX / Ring Row (feet elevated)</td><td>2-1-3</td><td>Bodyweight option, scalable by angle</td><td><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <button id="day-mon-complete-btn" onclick="markDayComplete('day-mon')" disabled>Mark Monday as Complete</button>
+    <div id="day-mon-completion-status"></div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#7F77DD"></div>Shoulder Health + Rotator Cuff — <span class="badge b-pick" style="margin-left:4px">Pick 2</span><span class="badge b-sets" style="margin-left:4px">3×12–15 reps · Rest 45s · Light!</span></div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>#</th><th>Exercise</th><th>Notes</th><th>Why it ranks here</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rank r1">1</span></td><td>Face Pull with External Rotation</td><td>Cable/band, slow</td><td>Posterior cuff + rear delt, best prehab movement</td></tr>
+            <tr><td><span class="rank r2">2</span></td><td>Band External Rotation (side-lying or standing)</td><td>Controlled, no momentum</td><td>Direct infraspinatus/teres minor work</td></tr>
+            <tr><td><span class="rank r3">3</span></td><td>W-Raise (prone on bench)</td><td>2×12, light DBs</td><td>Lower trap activation, scapular stability</td></tr>
+            <tr><td><span class="rank r4">4</span></td><td>Scapular Wall Slide</td><td>Bodyweight, controlled</td><td>Upward rotation pattern, zero injury risk</td></tr>
+            <tr><td><span class="rank r5">5</span></td><td>Cuban Press</td><td>Very light DBs</td><td>Full cuff rotation pattern in one movement</td></tr>
+            <tr><td><span class="rank r6">6</span></td><td>Prone Y-T-W</td><td>Light or bodyweight</td><td>Mid/lower trap and posterior cuff endurance</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#BA7517"></div>Grip + Forearms — <span class="badge b-pick" style="margin-left:4px">Pick 2</span><span class="badge b-sets" style="margin-left:4px">3 sets each</span></div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>#</th><th>Exercise</th><th>Prescription</th><th>What it develops</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rank r1">1</span></td><td>Farmers Carry</td><td>3×30–40m, heavy</td><td>Grip endurance, postural chain, forearm endurance</td></tr>
+            <tr><td><span class="rank r2">2</span></td><td>Zottman Curl</td><td>3×10–12, tempo 2-0-3</td><td>Brachioradialis size + bicep strength in one</td></tr>
+            <tr><td><span class="rank r3">3</span></td><td>Plate Pinch Hold</td><td>3×20–30 sec</td><td>Finger tendons + intrinsic hand strength</td></tr>
+            <tr><td><span class="rank r4">4</span></td><td>Reverse Wrist Curl</td><td>3×15–20, light</td><td>Forearm extensor bulk (the visible forearm muscle)</td></tr>
+            <tr><td><span class="rank r5">5</span></td><td>Towel / Thick Grip Hold</td><td>3×20–30 sec hang</td><td>Forearm hypertrophy via thick grip</td></tr>
+            <tr><td><span class="rank r6">6</span></td><td>Wrist Roller</td><td>3×3 rolls up+down</td><td>Full forearm flexor + extensor endurance</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#D4537E"></div>Neck Strengthening <span class="new-pill">new</span> — <span class="badge b-pick" style="margin-left:4px">Pick 2</span><span class="badge b-sets" style="margin-left:4px">2–3 sets · 15–20 reps · Very light</span></div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>#</th><th>Exercise</th><th>Notes</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rank r1">1</span></td><td>Chin Tuck (cervical retraction)</td><td>Isometric, 5 sec holds</td><td>Deep cervical flexor — fixes forward head posture</td></tr>
+            <tr><td><span class="rank r2">2</span></td><td>Neck Flexion (supine, no weight)</td><td>Slow, controlled lift</td><td>Sternocleidomastoid and deep flexors</td></tr>
+            <tr><td><span class="rank r3">3</span></td><td>Neck Extension (prone or seated, no weight)</td><td>Slow and controlled</td><td>Posterior neck — stabilises spine during overhead pressing</td></tr>
+            <tr><td><span class="rank r4">4</span></td><td>Isometric Side Hold (hand on temple, resist)</td><td>5 sec holds × 10 each side</td><td>Lateral neck stabilisers — protects during carries</td></tr>
+            <tr><td><span class="rank r5">5</span></td><td>Plate Neck Harness (if available)</td><td>Light plate, controlled</td><td>Direct neck strength for athletes</td></tr>
+            <tr><td><span class="rank r6">6</span></td><td>Neck CARs (warm-up variation)</td><td>5 slow circles each way</td><td>Joint health + mobility maintenance</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#D4537E"></div>Cool-Down + Breathwork (15 min)</div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>Exercise</th><th>Duration</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Doorway Pec Stretch</td><td>2×45 sec each arm</td><td>Breathe into the stretch</td></tr>
+            <tr><td>Overhead Lat / Tricep Stretch</td><td>2×45 sec each side</td><td>—</td></tr>
+            <tr><td>Child's Pose with Thoracic Rotation</td><td>1×60 sec</td><td>5 breaths each side</td></tr>
+            <tr><td>Box Breathing 4-4-4-4</td><td>5 min · 5 rounds</td><td>Post-training parasympathetic reset</td></tr>
+            <tr><td>4-7-8 Breathing (bedtime) <span class="new-pill">new</span></td><td>4 cycles before sleep</td><td>Inhale 4s → Hold 7s → Exhale 8s. Extends exhale phase for CO2 adaptation and parasympathetic activation</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TUESDAY -->
+  <div id="day-tue" class="session">
+    <div class="session-title">Tuesday — Lower Strength + Carry</div>
+    <div class="session-goal">Squat, hinge, unilateral leg work, hip/knee health, foot strength. Pick 2 from each group.</div>
+    <div class="meta-row"><span>⏱ 80 min</span><span>🔥 Warm-up 12 min</span><span>💪 Main 50 min</span><span>🧘 Mobility 10 min</span><span>🌬 Breathwork 5 min</span></div>
+
+    <div class="section-card" data-muscle-group="Warm-Up" data-required="6">
+      <div class="section-header"><div class="sdot" style="background:#378ADD"></div>Warm-Up (12 min) — Hip, Knee, Ankle + Foot Prep</div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>#</th><th>Exercise</th><th>Prescription</th><th>Key Cue</th><th>Done</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rank r1">1</span></td><td>Hip 90/90 Switches</td><td>2×10 each direction</td><td>External+internal rotation — squat health</td><td><input type="checkbox" onchange="checkCompletion('day-tue')"></td></tr>
+            <tr><td><span class="rank r2">2</span></td><td>Glute Bridge with Band Abduction</td><td>2×15, 2 sec hold top</td><td>Glute med — prevents knee cave</td><td><input type="checkbox" onchange="checkCompletion('day-tue')"></td></tr>
+            <tr><td><span class="rank r3">3</span></td><td>World's Greatest Stretch</td><td>5 each side</td><td>Best single warm-up movement for lower body</td><td><input type="checkbox" onchange="checkCompletion('day-tue')"></td></tr>
+            <tr><td><span class="rank r4">4</span></td><td>Ankle CARs</td><td>10 circles each direction, each ankle</td><td>Prevents impingement under squat load</td><td><input type="checkbox" onchange="checkCompletion('day-tue')"></td></tr>
+            <tr><td><span class="rank r5">5</span></td><td>Toe Spread + Arch Doming <span class="new-pill">new</span></td><td>2×15 each foot</td><td>Spread all 5 toes actively, then dome arch without curling. Intrinsic foot strength.</td><td><input type="checkbox" onchange="checkCompletion('day-tue')"></td></tr>
+            <tr><td><span class="rank r6">6</span></td><td>Single-Leg Calf Raise (slow) <span class="new-pill">new</span></td><td>2×10 slow each leg</td><td>Full range — heel drop to full rise. Achilles + ankle health.</td><td><input type="checkbox" onchange="checkCompletion('day-tue')"></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card" data-muscle-group="Squat Pattern" data-required="2">
+      <div class="section-header"><div class="sdot" style="background:#1D9E75"></div>Squat Pattern — <span class="badge b-pick" style="margin-left:4px">Pick 2</span><span class="badge b-sets" style="margin-left:4px">4×4–6 reps · Rest 2–3 min · Tempo 3-1-2</span></div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>#</th><th>Exercise</th><th>Notes</th><th>Why it ranks here</th><th>Done</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rank r1">1</span></td><td>Back Squat</td><td>Barbell, high or low bar</td><td>Highest absolute load, full lower body stimulus</td><td><input type="checkbox" onchange="checkCompletion('day-tue')"></td></tr>
+            <tr><td><span class="rank r2">2</span></td><td>Front Squat</td><td>Barbell or goblet</td><td>More upright torso, quad dominant, core demand</td><td><input type="checkbox" onchange="checkCompletion('day-tue')"></td></tr>
+            <tr><td><span class="rank r3">3</span></td><td>Goblet Squat</td><td>KB or DB, pause at bottom</td><td>Best for mobility development + technique work</td><td><input type="checkbox" onchange="checkCompletion('day-tue')"></td></tr>
+            <tr><td><span class="rank r4">4</span></td><td>Zercher Squat</td><td>Barbell in elbow crook</td><td>Unique upper back + core demand, elbow caution</td><td><input type="checkbox" onchange="checkCompletion('day-tue')"></td></tr>
+            <tr><td><span class="rank r5">5</span></td><td>Safety Bar Squat</td><td>If available</td><td>Easier on wrists/elbows, similar to high bar</td><td><input type="checkbox" onchange="checkCompletion('day-tue')"></td></tr>
+            <tr><td><span class="rank r6">6</span></td><td>Heel-Elevated Goblet Squat</td><td>Plates under heels</td><td>Ankle mobility compensator, quad emphasis</td><td><input type="checkbox" onchange="checkCompletion('day-tue')"></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card" data-muscle-group="Hinge Pattern" data-required="2">
+      <div class="section-header"><div class="sdot" style="background:#1D9E75"></div>Hinge Pattern — <span class="badge b-pick" style="margin-left:4px">Pick 2</span><span class="badge b-sets" style="margin-left:4px">4×5–8 reps · Rest 2 min · Tempo 3-1-2</span></div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>#</th><th>Exercise</th><th>Notes</th><th>Why it ranks here</th><th>Done</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rank r1">1</span></td><td>Romanian Deadlift (RDL)</td><td>Barbell or DB</td><td>Best hamstring + glute eccentric, spine-safe</td><td><input type="checkbox" onchange="checkCompletion('day-tue')"></td></tr>
+            <tr><td><span class="rank r2">2</span></td><td>Trap Bar Deadlift</td><td>If available</td><td>Most natural hinge pattern, lower back friendly</td><td><input type="checkbox" onchange="checkCompletion('day-tue')"></td></tr>
+            <tr><td><span class="rank r3">3</span></td><td>Conventional Deadlift</td><td>Barbell</td><td>Highest posterior chain strength builder</td><td><input type="checkbox" onchange="checkCompletion('day-tue')"></td></tr>
+            <tr><td><span class="rank r4">4</span></td><td>Single-Leg RDL (unilateral)</td><td>DB or KB</td><td>Balance + unilateral glute/hamstring demand</td><td><input type="checkbox" onchange="checkCompletion('day-tue')"></td></tr>
+            <tr><td><span class="rank r5">5</span></td><td>Kettlebell Swing</td><td>Hip hinge, explosive</td><td>Power development + hip extension endurance</td><td><input type="checkbox" onchange="checkCompletion('day-tue')"></td></tr>
+            <tr><td><span class="rank r6">6</span></td><td>Good Morning</td><td>Light barbell, controlled</td><td>Posterior chain flexibility + strength combined</td><td><input type="checkbox" onchange="checkCompletion('day-tue')"></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <button id="day-tue-complete-btn" onclick="markDayComplete('day-tue')" disabled>Mark Tuesday as Complete</button>
+    <div id="day-tue-completion-status"></div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#BA7517"></div>Unilateral Legs — <span class="badge b-pick" style="margin-left:4px">Pick 2</span><span class="badge b-sets" style="margin-left:4px">3×8–10 each side · Rest 60s</span></div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>#</th><th>Exercise</th><th>Tempo</th><th>Why it ranks here</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rank r1">1</span></td><td>Bulgarian Split Squat</td><td>3-1-2</td><td>Best single-leg exercise for quad + glute + balance</td></tr>
+            <tr><td><span class="rank r2">2</span></td><td>Single-Leg Hip Thrust</td><td>2-2-1</td><td>Glute isolation + hip extension power</td></tr>
+            <tr><td><span class="rank r3">3</span></td><td>Step-Up (weighted)</td><td>Controlled, 2 sec top</td><td>Functional, knee-safe, easy to load progressively</td></tr>
+            <tr><td><span class="rank r4">4</span></td><td>Reverse Lunge</td><td>3-1-2</td><td>Less knee shear than forward lunge, more hip demand</td></tr>
+            <tr><td><span class="rank r5">5</span></td><td>Cossack Squat</td><td>Slow, full range</td><td>Adductor + hip mobility + lateral strength</td></tr>
+            <tr><td><span class="rank r6">6</span></td><td>Pistol Squat (assisted)</td><td>Slow eccentric</td><td>Elite single-leg strength, high mobility demand</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#D85A30"></div>Knee + Hamstring Health — <span class="badge b-pick" style="margin-left:4px">Pick 2</span><span class="badge b-sets" style="margin-left:4px">3 sets</span></div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>#</th><th>Exercise</th><th>Prescription</th><th>What it prevents</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rank r1">1</span></td><td>Nordic Hamstring Curl</td><td>3×5–8 slow eccentrics (3–5 sec lower)</td><td>#1 hamstring injury prevention exercise</td></tr>
+            <tr><td><span class="rank r2">2</span></td><td>Tibialis Raise (wall)</td><td>3×20 reps</td><td>Shin splints + knee tracking + ankle stability</td></tr>
+            <tr><td><span class="rank r3">3</span></td><td>Terminal Knee Extension (band)</td><td>3×15 each leg</td><td>VMO activation + knee joint stability</td></tr>
+            <tr><td><span class="rank r4">4</span></td><td>Slider Leg Curl (supine)</td><td>3×10, slow eccentric</td><td>Hamstring at hip + knee — full length loading</td></tr>
+            <tr><td><span class="rank r5">5</span></td><td>Copenhagen Plank</td><td>3×20–30 sec each side</td><td>Adductor + lateral hip + groin injury prevention</td></tr>
+            <tr><td><span class="rank r6">6</span></td><td>Reverse Hyper (or Glute Ham Raise)</td><td>3×10</td><td>Posterior chain endurance + spinal decompression</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#5DCAA5"></div>Foot Strength <span class="new-pill">new</span> — <span class="badge b-pick" style="margin-left:4px">Pick 2</span><span class="badge b-sets" style="margin-left:4px">2–3 sets · Daily if possible</span></div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>#</th><th>Exercise</th><th>Prescription</th><th>Why it matters</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rank r1">1</span></td><td>Single-Leg Calf Raise (full ROM)</td><td>3×15–20, slow eccentric (3 sec down)</td><td>Achilles tendon health, propulsion power</td></tr>
+            <tr><td><span class="rank r2">2</span></td><td>Toe Spread + Arch Doming</td><td>2×15–20, each foot</td><td>Intrinsic foot muscles — reduces plantar fascia risk</td></tr>
+            <tr><td><span class="rank r3">3</span></td><td>Short Foot Exercise (arch lift)</td><td>2×15 isometric holds</td><td>Foot arch control — transfers to squat and run mechanics</td></tr>
+            <tr><td><span class="rank r4">4</span></td><td>Towel Scrunch (toe flexors)</td><td>3×20 reps each foot</td><td>Toe flexor strength, balance</td></tr>
+            <tr><td><span class="rank r5">5</span></td><td>Balance on One Leg (eyes closed)</td><td>3×30 sec each side</td><td>Proprioception + ankle stabiliser endurance</td></tr>
+            <tr><td><span class="rank r6">6</span></td><td>Loaded Calf Raise on Incline</td><td>3×12 slow, full ROM</td><td>Soleus emphasis (deep calf) + Achilles load</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEDNESDAY -->
+  <div id="day-wed" class="session">
+    <div class="session-title">Wednesday — AM Breathwork + Mobility · PM Zone 2 Run</div>
+    <div class="session-goal">Improve diaphragmatic breathing, CO2 tolerance, thoracic mobility. PM: aerobic base building via nasal-breathing Zone 2 running.</div>
+    <div class="meta-row"><span>⏱ AM: 30 min · PM: 40 min</span><span>🌬 AM: breathwork + thoracic</span><span>🏃 PM: easy nasal run</span></div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#D4537E"></div>AM — Breathwork + Thoracic (30 min)</div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>Exercise</th><th>Duration / Prescription</th><th>Key Cue</th></tr></thead>
+          <tbody>
+            <tr><td>Diaphragmatic Breathing (lying)</td><td>5 min · hand on belly + chest</td><td>Belly rises first, chest stays still. Builds diaphragm strength.</td></tr>
+            <tr><td>Box Breathing 4-4-4-4</td><td>5 min · 5–7 rounds</td><td>Nasal breathing throughout. Regulates CO2 tolerance.</td></tr>
+            <tr><td>Extended Exhale 4-4-6-2</td><td>5 min</td><td>Longer exhale = better O2 release to muscles via Bohr effect</td></tr>
+            <tr><td>BOLT Test (CO2 tolerance) <span class="new-pill">track</span></td><td>1 test session · Log result</td><td>Exhale → hold → first urge to breathe = your BOLT score. Target 40 sec over 12 weeks.</td></tr>
+            <tr><td>Thoracic Extension on Foam Roller</td><td>3 positions × 60 sec · Breathe INTO extension</td><td>Opens rib cage for lung volume. Breathe in during the extension.</td></tr>
+            <tr><td>Rib-Grab Lateral Stretch</td><td>2×45 sec each side</td><td>Expands intercostal flexibility — directly improves lung capacity</td></tr>
+            <tr><td>Cat-Cow with Breath Sync</td><td>2 min</td><td>Inhale into cow, exhale into cat</td></tr>
+            <tr><td>Crocodile Breathing (prone)</td><td>3 min · Face down</td><td>Best position for posterior diaphragm expansion</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#1D9E75"></div>PM — Zone 2 Run (40 min)</div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>Phase</th><th>Duration</th><th>Instruction</th></tr></thead>
+          <tbody>
+            <tr><td>Warm-Up Walk/Jog</td><td>5 min</td><td>Nasal breathing only, easy pace</td></tr>
+            <tr><td>Zone 2 Run</td><td>30 min</td><td>Conversational pace, 60–70% max HR. Nasal only — if you can't, slow down.</td></tr>
+            <tr><td>Cool-Down Walk</td><td>5 min</td><td>Re-establish diaphragmatic breathing. Don't stop abruptly.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#D4537E"></div>Bedtime — 4-7-8 Breathing <span class="new-pill">new</span></div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>Protocol</th><th>Prescription</th><th>Why it's here</th></tr></thead>
+          <tbody>
+            <tr><td>4-7-8 Breathing</td><td>4 cycles before sleep · Inhale 4s → Hold 7s → Exhale 8s</td><td>Strongest exhale-extension protocol. Dramatically increases CO2 tolerance overnight. Parasympathetic activation for deeper sleep and recovery. Compounds the morning breathwork.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- THURSDAY -->
+  <div id="day-thu" class="session">
+    <div class="session-title">Thursday — Rotation + Anti-Rotation + Plyometrics</div>
+    <div class="session-goal">Rotational power, anti-rotational core, explosive strength via plyometrics (tendon stiffness, bone density, neuromuscular coordination). Pick 2 per group.</div>
+    <div class="meta-row"><span>⏱ 75 min</span><span>🔥 Warm-up 10 min</span><span>⚡ Plyos: first after warm-up (CNS fresh)</span><span>💪 Main 50 min</span><span>🧘 Mobility 10 min</span></div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#378ADD"></div>Warm-Up (10 min)</div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>Exercise</th><th>Prescription</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td>Hip CARs</td><td>5 reps each direction, each hip</td><td>Hip joint health + rotation prep</td></tr>
+            <tr><td>Thoracic Rotation in Deep Squat</td><td>10 each side</td><td>Unlock thoracic spine for rotation work</td></tr>
+            <tr><td>Lateral Band Walk</td><td>2×15 steps each direction</td><td>Hip abductor activation</td></tr>
+            <tr><td>Jump Rope / Skipping (light)</td><td>2×30 sec</td><td>Ankle prep, tissue warm-up before plyos</td></tr>
+            <tr><td>Ankle Mobilisation</td><td>10 reps each ankle</td><td>Reduces plyo injury risk</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#EF9F27"></div>Plyometrics <span class="new-pill">new</span> — <span class="badge b-pick" style="margin-left:4px">Pick 2</span><span class="badge b-sets" style="margin-left:4px">3–4 sets · 3–6 reps · Full rest 2–3 min (quality over quantity)</span></div>
+      <div class="note-box" style="margin:8px 12px;border-color:#BA7517">Do these FIRST after warm-up — CNS must be fresh for plyos to work. Never do them fatigued.</div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>#</th><th>Exercise</th><th>Prescription</th><th>What it develops</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rank r1">1</span></td><td>Box Jump</td><td>4×4–5 reps · Step down, don't jump down</td><td>Vertical explosive power, tendon stiffness, bone density</td></tr>
+            <tr><td><span class="rank r2">2</span></td><td>Broad Jump</td><td>4×3–4 reps · Full reset each jump</td><td>Horizontal power, hip extension explosiveness</td></tr>
+            <tr><td><span class="rank r3">3</span></td><td>Depth Drop (step off box, land soft)</td><td>3×5 reps · Land quiet, absorb fully</td><td>Reactive landing mechanics — prevents knee injury on landing</td></tr>
+            <tr><td><span class="rank r4">4</span></td><td>Lateral Bound (skater jump)</td><td>3×5 each side</td><td>Lateral force production + single-leg landing mechanics</td></tr>
+            <tr><td><span class="rank r5">5</span></td><td>Pogo Hop (fast ankle bounces)</td><td>3×15–20 sec continuous</td><td>Achilles stiffness, running economy, calf power</td></tr>
+            <tr><td><span class="rank r6">6</span></td><td>Rotational Med Ball Slam</td><td>4×5 each side, explosive</td><td>Power + rotation — bridges plyos into rotation training</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#1D9E75"></div>Rotation — <span class="badge b-pick" style="margin-left:4px">Pick 2</span><span class="badge b-sets" style="margin-left:4px">4×8 each side · Rest 60s</span></div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>#</th><th>Exercise</th><th>Notes</th><th>Why it ranks here</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rank r1">1</span></td><td>Landmine Rotation</td><td>Athletic stance, hip-driven</td><td>Best loaded rotational pattern — hip not arm driven</td></tr>
+            <tr><td><span class="rank r2">2</span></td><td>Cable Woodchop (Low to High)</td><td>Full body rotation</td><td>Diagonal power pattern, oblique + hip integration</td></tr>
+            <tr><td><span class="rank r3">3</span></td><td>Med Ball Rotational Throw (wall)</td><td>Explosive, reset each rep</td><td>Maximal rotation velocity — most sport-specific</td></tr>
+            <tr><td><span class="rank r4">4</span></td><td>Russian Twist (weighted, slow)</td><td>Feet off floor option</td><td>Oblique endurance + spinal rotation</td></tr>
+            <tr><td><span class="rank r5">5</span></td><td>Cable High-to-Low Chop</td><td>Opposite of woodchop</td><td>Hits obliques + hip flexors in rotation</td></tr>
+            <tr><td><span class="rank r6">6</span></td><td>Thoracic Rotation on All Fours</td><td>Bodyweight, controlled</td><td>Mobility emphasis — use on deload weeks</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#7F77DD"></div>Anti-Rotation + Core Stability — <span class="badge b-pick" style="margin-left:4px">Pick 2</span><span class="badge b-sets" style="margin-left:4px">3–4 sets · Rest 60s</span></div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>#</th><th>Exercise</th><th>Prescription</th><th>Why it ranks here</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rank r1">1</span></td><td>Pallof Press</td><td>4×10–12 each side, 2 sec pause</td><td>Best anti-rotation drill — direct core stability</td></tr>
+            <tr><td><span class="rank r2">2</span></td><td>Dead Bug (contralateral)</td><td>3×8–10 each side, exhale fully</td><td>Deep core stability, lumbar spine safe</td></tr>
+            <tr><td><span class="rank r3">3</span></td><td>Suitcase Deadlift (offset load)</td><td>3×6–8 each side, braced</td><td>Anti-lateral flexion hinge — full-body anti-rotation</td></tr>
+            <tr><td><span class="rank r4">4</span></td><td>Stir the Pot (plank on ball)</td><td>3×10 circles each way</td><td>360° core stability, harder than it looks</td></tr>
+            <tr><td><span class="rank r5">5</span></td><td>Copenhagen Adductor Plank</td><td>3×20–30 sec each side</td><td>Adductor + lateral core + groin protection</td></tr>
+            <tr><td><span class="rank r6">6</span></td><td>Half-Kneeling Pallof Press</td><td>3×10–12 each side</td><td>Hip stability + anti-rotation combined</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#D85A30"></div>Elbow + Joint Prehab — do all (5 min)</div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>Exercise</th><th>Prescription</th><th>Purpose</th></tr></thead>
+          <tbody>
+            <tr><td>Reverse Tyler Twist (Flexbar/band)</td><td>3×15 slow, eccentric focus</td><td>Lateral elbow tendon health — clinical standard</td></tr>
+            <tr><td>Wrist Flexion + Extension (light load)</td><td>2×15 each direction</td><td>Medial elbow + forearm tendon prehab</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- FRIDAY -->
+  <div id="day-fri" class="session">
+    <div class="session-title">Friday — Active Recovery + Full Mobility + Sleep Breathwork</div>
+    <div class="session-goal">Restore tissue quality, expand joint range of motion in hips, shoulders, thoracic. End the day with 4-7-8 breathing for recovery and CO2 adaptation.</div>
+    <div class="meta-row"><span>⏱ 40 min + bedtime 4-7-8</span><span>🧘 Full mobility circuit</span><span>🚶 Optional: 20 min easy walk</span></div>
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#7F77DD"></div>Active Recovery Mobility Circuit (40 min)</div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>Exercise</th><th>Duration</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Hip 90/90 + Internal Rotation Bias</td><td>2×90 sec each side</td><td>Hip joint health, range restoration</td></tr>
+            <tr><td>Couch Stretch (hip flexor)</td><td>2×90 sec each side</td><td>Breathe into stretch — exhale = deeper</td></tr>
+            <tr><td>Thoracic Extension on Roller (3 positions)</td><td>3×60 sec each</td><td>Mid, mid-upper, upper thoracic</td></tr>
+            <tr><td>Open Book Rotation (lying)</td><td>2×10 each side</td><td>Reach arm all the way, follow with eyes</td></tr>
+            <tr><td>Shoulder CARs</td><td>5 reps each arm, very slow</td><td>Rotator cuff joint health</td></tr>
+            <tr><td>Downward Dog + Calf Walk</td><td>2×30 sec</td><td>Calf + hamstring + shoulder combined</td></tr>
+            <tr><td>Crocodile Breathing (prone)</td><td>3 min, face down</td><td>Posterior diaphragm — best breathing for recovery</td></tr>
+            <tr><td>Toe Spread + Arch Dome <span class="new-pill">new</span></td><td>2×15 each foot</td><td>Foot maintenance — combine with calf raises</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#D4537E"></div>Bedtime — 4-7-8 Breathing <span class="new-pill">new</span></div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>Protocol</th><th>Prescription</th><th>Effect</th></tr></thead>
+          <tbody>
+            <tr><td>4-7-8 Breathing</td><td>4–8 cycles · Inhale 4s → Hold 7s → Exhale 8s · Nasal in, mouth out</td><td>Deepens sleep, accelerates recovery, builds CO2 tolerance overnight. Do every night — not just Fridays.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SATURDAY -->
+  <div id="day-sat" class="session">
+    <div class="session-title">Saturday — AM: Upper Pull + Forearms · PM: Moderate Tempo Run</div>
+    <div class="session-goal">AM: Emphasise pulling movements and forearm hypertrophy. PM: Moderate tempo run (not full 4×4 intervals after heavy pulling — smarter pairing). Pick 2 per group.</div>
+    <div class="meta-row"><span>⏱ AM: 60 min · PM: 30 min</span><span>💪 AM: pull + forearms</span><span>🏃 PM: tempo run (not intervals)</span><span class="new-pill">Saturday PM updated</span></div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#7F77DD"></div>Horizontal Pull — <span class="badge b-pick" style="margin-left:4px">Pick 2</span><span class="badge b-sets" style="margin-left:4px">4×6–8 reps · Rest 90s · Tempo 2-1-3</span></div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>#</th><th>Exercise</th><th>Notes</th><th>Why it ranks here</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rank r1">1</span></td><td>Barbell Bent-Over Row (supinated)</td><td>45° hinge, drive elbow to hip</td><td>Highest horizontal pull load, bicep-inclusive</td></tr>
+            <tr><td><span class="rank r2">2</span></td><td>Single-Arm DB Row</td><td>Supported on bench or standing</td><td>Full lat ROM, unilateral, heavy load possible</td></tr>
+            <tr><td><span class="rank r3">3</span></td><td>Seal Row (prone on elevated bench)</td><td>No momentum possible</td><td>Eliminates body swing — strictest horizontal row</td></tr>
+            <tr><td><span class="rank r4">4</span></td><td>Cable Row (close grip)</td><td>Seated or standing</td><td>Constant tension, good for high-rep accessory</td></tr>
+            <tr><td><span class="rank r5">5</span></td><td>Inverted Row (bar or rings)</td><td>Feet elevated for harder</td><td>Bodyweight horizontal pull — scalable</td></tr>
+            <tr><td><span class="rank r6">6</span></td><td>Meadows Row (landmine)</td><td>One end of barbell</td><td>Unique ROM, hits teres major and rear delt</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#7F77DD"></div>Vertical Pull — <span class="badge b-pick" style="margin-left:4px">Pick 2</span><span class="badge b-sets" style="margin-left:4px">4×4–6 reps · Rest 2 min</span></div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>#</th><th>Exercise</th><th>Tempo</th><th>Why it ranks here</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rank r1">1</span></td><td>Weighted Pull-Up</td><td>2-1-3</td><td>Best vertical pull — strength + grip + lat</td></tr>
+            <tr><td><span class="rank r2">2</span></td><td>Ring Pull-Up (neutral grip)</td><td>2-1-3</td><td>Shoulder-friendly, forearm demand higher</td></tr>
+            <tr><td><span class="rank r3">3</span></td><td>Chest-to-Bar Pull-Up</td><td>2-1-3</td><td>Greater ROM, more upper back involvement</td></tr>
+            <tr><td><span class="rank r4">4</span></td><td>Neutral Grip Pull-Up</td><td>2-1-3</td><td>Easier on elbows, strong lat + bicep activator</td></tr>
+            <tr><td><span class="rank r5">5</span></td><td>Lat Pulldown (supinated)</td><td>2-1-3</td><td>Load adjustable, bicep-inclusive grip</td></tr>
+            <tr><td><span class="rank r6">6</span></td><td>Straight-Arm Pulldown</td><td>2-0-2</td><td>Lat isolation, elbow-safe finisher</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#BA7517"></div>Forearm Hypertrophy — <span class="badge b-pick" style="margin-left:4px">Pick 3</span><span class="badge b-sets" style="margin-left:4px">3 sets each · This is your forearm day</span></div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>#</th><th>Exercise</th><th>Prescription</th><th>Muscle target</th></tr></thead>
+          <tbody>
+            <tr><td><span class="rank r1">1</span></td><td>Hammer Curl</td><td>3×10–12, alternating, tempo 2-0-3</td><td>Brachioradialis — #1 forearm size builder</td></tr>
+            <tr><td><span class="rank r2">2</span></td><td>Zottman Curl</td><td>3×10–12, slow pronation on down</td><td>Bicep up + forearm extensor eccentric down</td></tr>
+            <tr><td><span class="rank r3">3</span></td><td>Wrist Roller</td><td>3×3 rolls up + down</td><td>Full flexor + extensor forearm endurance</td></tr>
+            <tr><td><span class="rank r4">4</span></td><td>Reverse Wrist Curl (barbell)</td><td>3×15–20, light</td><td>Extensor belly — visible upper forearm thickness</td></tr>
+            <tr><td><span class="rank r5">5</span></td><td>Towel / Thick Bar Hang</td><td>3×20–30 sec</td><td>Thick grip forearm hypertrophy + grip endurance</td></tr>
+            <tr><td><span class="rank r6">6</span></td><td>Supinated Wrist Curl (barbell)</td><td>3×15–20, full ROM</td><td>Flexor belly — inner forearm width</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header"><div class="sdot" style="background:#D85A30"></div>PM — Moderate Tempo Run (30 min) <span class="new-pill">updated — was 4×4 intervals</span></div>
+      <div class="muscle-group">
+        <table class="ex-table">
+          <thead><tr><th>Phase</th><th>Duration</th><th>Instruction</th></tr></thead>
+          <tbody>
+            <tr><td>Warm-Up Jog</td><td>5 min easy</td><td>Nasal breathing</td></tr>
+            <tr><td>Tempo Run</td><td>20 min · 75–80% effort</td><td>Comfortably hard — can speak 3–4 word sentences. Not all-out. Preserves recovery after AM pulling session.</td></tr>
+            <tr><td>Cool-Down Walk</td><td>5 min</td><td>Slow nasal breathing recovery</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUNDAY -->
+  <div id="day-sun" class="session">
+    <div class="rest-card">
+      <div style="font-size:26px;margin-bottom:8px">🌿</div>
+      <div style="font-weight:500;font-size:14px;margin-bottom:6px;color:var(--color-text-primary)">Sunday — Full Rest</div>
+      <div style="font-size:12px;color:var(--color-text-secondary);line-height:1.7">Adaptation happens during rest, not training. Strength gains, tendon remodelling, and cardiovascular improvement all occur here.<br><br>Focus on: 8+ hrs sleep, adequate protein (1.6–2.2g/kg bodyweight), sunlight, light walking. Optional: 10 min easy nasal breathing or gentle walk.<br><br>Bedtime: 4-7-8 breathing (4 cycles). Do this every night.</div>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILITY TAB -->
+<div id="tab-mobility" class="tab-content">
+  <div class="prog-h2">Weekly Mobility Plan — Hips, Shoulders, Thoracic Spine</div>
+  <div class="section-card">
+    <div class="section-header"><div class="sdot" style="background:#1D9E75"></div>Hip Mobility (Mon, Thu, Fri)</div>
+    <div class="muscle-group">
+      <table class="ex-table">
+        <thead><tr><th>#</th><th>Exercise</th><th>Prescription</th><th>Priority</th></tr></thead>
+        <tbody>
+          <tr><td><span class="rank r1">1</span></td><td>Hip 90/90 Switches</td><td>3×10 each direction, 2 sec pause</td><td>Combined IR + ER — essential</td></tr>
+          <tr><td><span class="rank r2">2</span></td><td>Hip CARs</td><td>5 each direction each hip, very slow</td><td>Daily joint health — do every day if possible</td></tr>
+          <tr><td><span class="rank r3">3</span></td><td>Pigeon Pose / Figure-4</td><td>2×90 sec each side</td><td>External hip rotation flexibility</td></tr>
+          <tr><td><span class="rank r4">4</span></td><td>Couch Stretch</td><td>2×90 sec each side</td><td>Hip flexor — critical for squat and lower back</td></tr>
+          <tr><td><span class="rank r5">5</span></td><td>Deep Squat Hold</td><td>2×60 sec, heels flat if possible</td><td>Full hip + ankle + thoracic integration</td></tr>
+          <tr><td><span class="rank r6">6</span></td><td>Cossack Squat Hold</td><td>2×30 sec each side</td><td>Adductor + lateral hip + ankle</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-card">
+    <div class="section-header"><div class="sdot" style="background:#7F77DD"></div>Shoulder Mobility (Mon, Sat, Fri)</div>
+    <div class="muscle-group">
+      <table class="ex-table">
+        <thead><tr><th>#</th><th>Exercise</th><th>Prescription</th><th>Priority</th></tr></thead>
+        <tbody>
+          <tr><td><span class="rank r1">1</span></td><td>Shoulder CARs</td><td>5 each arm, both directions, very slow</td><td>Daily rotator cuff health — do every session</td></tr>
+          <tr><td><span class="rank r2">2</span></td><td>Sleeper Stretch</td><td>2×45 sec each side</td><td>Internal rotation — prevents impingement</td></tr>
+          <tr><td><span class="rank r3">3</span></td><td>Cross-Body Stretch</td><td>2×45 sec each side</td><td>Posterior capsule tightness relief</td></tr>
+          <tr><td><span class="rank r4">4</span></td><td>Banded Overhead Distraction</td><td>2×45 sec each side</td><td>Creates joint space, reduces impingement</td></tr>
+          <tr><td><span class="rank r5">5</span></td><td>Wall Slides</td><td>2×10, arms contact wall</td><td>Active overhead mobility, scapular upward rotation</td></tr>
+          <tr><td><span class="rank r6">6</span></td><td>Doorway Pec Stretch</td><td>2×45 sec each arm</td><td>Pec minor tightness — common in pushers</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-card">
+    <div class="section-header"><div class="sdot" style="background:#BA7517"></div>Thoracic Spine (Daily — priority Wed + Fri)</div>
+    <div class="muscle-group">
+      <table class="ex-table">
+        <thead><tr><th>#</th><th>Exercise</th><th>Prescription</th><th>Priority</th></tr></thead>
+        <tbody>
+          <tr><td><span class="rank r1">1</span></td><td>Thoracic Extension on Foam Roller</td><td>3 positions × 60 sec, breathe INTO extension</td><td>Most impactful thoracic tool — do daily first month</td></tr>
+          <tr><td><span class="rank r2">2</span></td><td>Thread-the-Needle</td><td>2×10 each side, all fours</td><td>Rotational mobility in thoracic</td></tr>
+          <tr><td><span class="rank r3">3</span></td><td>Open Book Rotation (lying)</td><td>2×10 each side, full arm reach</td><td>Thoracic rotation + shoulder mobility combined</td></tr>
+          <tr><td><span class="rank r4">4</span></td><td>Seated Thoracic Rotation (hands behind head)</td><td>2×10 each side</td><td>Rotation under load, sit tall</td></tr>
+          <tr><td><span class="rank r5">5</span></td><td>Rib-Grab Lateral Stretch</td><td>2×45 sec each side</td><td>Intercostal flexibility for lung volume</td></tr>
+          <tr><td><span class="rank r6">6</span></td><td>Cat-Cow with Breath Sync</td><td>2 min, inhale cow / exhale cat</td><td>Spinal mobility + breathing integration</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- CONDITIONING TAB -->
+<div id="tab-conditioning" class="tab-content">
+  <div class="prog-h2">Running + Conditioning Progression — 12 Weeks</div>
+  <div class="section-card">
+    <div class="section-header"><div class="sdot" style="background:#378ADD"></div>Phase 1 — Foundation (Weeks 1–4) · Ramp-in week 1 at 60% volume</div>
+    <div class="muscle-group">
+      <table class="ex-table">
+        <thead><tr><th>Session</th><th>Day</th><th>Protocol</th><th>BOLT target</th></tr></thead>
+        <tbody>
+          <tr><td>Week 1 (ramp-in)</td><td>Wed + Sat</td><td>15 min easy walk/jog only. Zero pressure. Build habit.</td><td>Baseline test</td></tr>
+          <tr><td>Weeks 2–4 Wed</td><td>Zone 2</td><td>20–25 min easy, nasal only. Walk if needed.</td><td rowspan="2">20–25 sec</td></tr>
+          <tr><td>Weeks 2–4 Sat</td><td>Intervals</td><td>3×3 min moderate (80%) → 3 min walk recovery</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-card">
+    <div class="section-header"><div class="sdot" style="background:#1D9E75"></div>Phase 2 — Build (Weeks 5–8)</div>
+    <div class="muscle-group">
+      <table class="ex-table">
+        <thead><tr><th>Session</th><th>Protocol</th><th>BOLT target</th></tr></thead>
+        <tbody>
+          <tr><td>Wed Zone 2</td><td>30 min continuous, nasal, no walking</td><td rowspan="2">30–35 sec</td></tr>
+          <tr><td>Sat Tempo</td><td>20 min tempo (75–80% effort) — the updated Saturday PM format</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-card">
+    <div class="section-header"><div class="sdot" style="background:#BA7517"></div>Phase 3 — Performance (Weeks 9–12)</div>
+    <div class="muscle-group">
+      <table class="ex-table">
+        <thead><tr><th>Session</th><th>Protocol</th><th>BOLT target</th></tr></thead>
+        <tbody>
+          <tr><td>Wed Zone 2</td><td>35–40 min + optional 3×100m strides at end</td><td rowspan="2">40+ sec</td></tr>
+          <tr><td>Sat Tempo</td><td>25 min tempo OR 4×4 intervals if well-recovered from AM session</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="note-box" style="border-color:#1D9E75">By week 12 you should be able to nasal breathe comfortably at moderate pace — a measurable sign of improved lung capacity and running economy. Track BOLT score monthly as an objective marker.</div>
+</div>
+
+<!-- PROGRESSION TAB -->
+<div id="tab-progression" class="tab-content">
+  <div class="prog-h2">Progression, Deload + Injury Prevention</div>
+  <div class="section-card">
+    <div class="section-header"><div class="sdot" style="background:#1D9E75"></div>Load Progression Rules</div>
+    <div class="muscle-group">
+      <table class="ex-table">
+        <thead><tr><th>Category</th><th>Rule</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Strength (compound)</td><td>Add 2.5–5 kg after 2 consecutive sessions with clean form</td><td>Never add because the calendar says so</td></tr>
+          <tr><td>Accessory + Unilateral</td><td>Increase reps first (8→12), then weight (drop back to 8)</td><td>Double progression model</td></tr>
+          <tr><td>Plyometrics</td><td>Add 1 rep per set per week max · Never add height/distance and reps together</td><td>Quality of landing > quantity</td></tr>
+          <tr><td>Carry + Grip</td><td>+10% distance or weight per week — not both</td><td>Tendon adaptation is slower than muscle</td></tr>
+          <tr><td>Running volume</td><td>Never increase weekly mileage more than 10% per week</td><td>Most running injuries are overuse</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-card">
+    <div class="section-header"><div class="sdot" style="background:#D85A30"></div>Elbow Protection — Non-Negotiable Rules</div>
+    <div class="muscle-group">
+      <table class="ex-table">
+        <thead><tr><th>Rule</th><th>Detail</th></tr></thead>
+        <tbody>
+          <tr><td>Never lock elbows under load</td><td>Keep 5–10° flexion at full extension on all pressing movements</td></tr>
+          <tr><td>Wrist prep before every upper session</td><td>Loaded wrist flexion/extension — never skip</td></tr>
+          <tr><td>Tyler Twist daily</td><td>3 sets every training day, light band, slow eccentric — clinical prehab standard</td></tr>
+          <tr><td>If elbow pain starts</td><td>Drop direct bicep/tricep work. Switch to landmine press. Neutral grip for pulls. Keep carries for blood flow.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-card">
+    <div class="section-header"><div class="sdot" style="background:#7F77DD"></div>Deload — Every 4th Week</div>
+    <div class="muscle-group">
+      <table class="ex-table">
+        <thead><tr><th>Element</th><th>Deload approach</th></tr></thead>
+        <tbody>
+          <tr><td>Weights</td><td>50% of normal load · Same sets and reps · Use deload week to try new exercise options from the ranked lists</td></tr>
+          <tr><td>Plyometrics</td><td>Remove entirely on deload week — replace with pogo hops or light skipping only</td></tr>
+          <tr><td>Mobility + Breathwork</td><td>Keep at full volume — these are the weeks you make the most mobility gains</td></tr>
+          <tr><td>Running</td><td>Zone 2 only, no intervals or tempo on deload week</td></tr>
+          <tr><td>Early deload signals</td><td>Joint pain, sleep disruption, motivation loss, 2+ weeks of declining performance, persistent fatigue</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="section-card">
+    <div class="section-header"><div class="sdot" style="background:#BA7517"></div>Week 1 Ramp-In Protocol <span class="new-pill">new</span></div>
+    <div class="muscle-group">
+      <table class="ex-table">
+        <thead><tr><th>Element</th><th>Week 1 only</th></tr></thead>
+        <tbody>
+          <tr><td>Strength volume</td><td>60% of prescribed sets. E.g. if program says 4 sets, do 2–3.</td></tr>
+          <tr><td>Load</td><td>Start lighter than you think. Establish movement patterns first.</td></tr>
+          <tr><td>Plyometrics</td><td>Do depth drops and pogo hops only (no full box jumps) — introduce landing mechanics</td></tr>
+          <tr><td>Running</td><td>Walk/jog only. No intervals.</td></tr>
+          <tr><td>Why</td><td>Reduces week 1 soreness that derails motivation. Full volume from week 2.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    setupTodaysWorkout();
+    // Add this to initialize the first day's completion check
+    const today = new Date().getDay();
+    const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    const currentDayId = days[today];
+    if (currentDayId !== 'sun') {
+        checkCompletion(currentDayId);
+    }
+});
+
+function setupTodaysWorkout() {
+    const today = new Date().getDay();
+    const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    const currentDayId = days[today];
+    const todaysWorkoutContent = document.getElementById('todays-workout-content');
+
+    // Clear previous content
+    todaysWorkoutContent.innerHTML = '';
+
+    const todaysSession = document.getElementById(`day-${currentDayId}`);
+
+    if (todaysSession) {
+        // Move the session content to the "Today" tab
+        todaysWorkoutContent.appendChild(todaysSession);
+        todaysSession.classList.add('visible');
+    } else {
+        todaysWorkoutContent.innerHTML = '<div class="rest-card"><div style="font-size:26px;margin-bottom:8px">🌿</div><div style="font-weight:500;font-size:14px;margin-bottom:6px;color:var(--color-text-primary)">It\'s a Rest Day!</div><div style="font-size:12px;color:var(--color-text-secondary);line-height:1.7">Enjoy your rest. Recovery is when you get stronger.</div></div>';
+    }
+}
+
+
+function checkCompletion(dayId) {
+    // We need to check within the context of the currently displayed workout,
+    // which could be in the "Today" tab or the "Sessions" tab.
+    const dayContainer = document.getElementById(dayId);
+    if (!dayContainer) return;
+
+    const muscleGroups = dayContainer.querySelectorAll('[data-muscle-group][data-required]');
+    let allGroupsComplete = true;
+
+    muscleGroups.forEach(group => {
+        const required = parseInt(group.dataset.required, 10);
+        const checkboxes = group.querySelectorAll('input[type="checkbox"]:checked');
+        if (checkboxes.length < required) {
+            allGroupsComplete = false;
+        }
+    });
+
+    const completeBtn = dayContainer.querySelector(`#${dayId}-complete-btn`);
+    if (completeBtn) {
+        completeBtn.disabled = !allGroupsComplete;
+    }
+}
+
+function markDayComplete(dayId) {
+    const dayContainer = document.getElementById(dayId);
+    if (!dayContainer) return;
+
+    const statusDiv = dayContainer.querySelector(`#${dayId}-completion-status`);
+    if (statusDiv) {
+        statusDiv.textContent = 'Workout completed for the day!';
+        statusDiv.style.color = 'green';
+        statusDiv.style.fontWeight = 'bold';
+        statusDiv.style.marginTop = '1rem';
+    }
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('visible'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('visible');
+  btn.classList.add('active');
+}
+function showDay(id, btn) {
+  // When showing a day in the "Sessions" tab, we need to ensure the content is visible there.
+  const dayToShow = document.getElementById('day-' + id);
+  const sessionsTab = document.getElementById('tab-sessions');
+  
+  // If the day's content is currently in the "Today" tab, move it back.
+  const todaysWorkoutContent = document.getElementById('todays-workout-content');
+  if (todaysWorkoutContent.contains(dayToShow)) {
+      // This case is unlikely with the new logic, but good to handle.
+      // The setupTodaysWorkout function now permanently moves the content.
+  }
+
+  document.querySelectorAll('.session').forEach(s => s.classList.remove('visible'));
+  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+  
+  if (dayToShow) {
+      dayToShow.classList.add('visible');
+  }
+  btn.classList.add('active');
+}
+</script>
