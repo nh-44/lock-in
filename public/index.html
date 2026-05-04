@@ -1,4 +1,3 @@
-
 <style>
 :root {
     --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -316,6 +315,83 @@ button[disabled] {
 .legend-color.rest { background-color: #fef9c3; }
 .legend-color.missed { background-color: #fee2e2; }
 
+/* Modal Styles */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s;
+}
+
+.modal-content {
+    background: var(--color-background-primary);
+    padding: 1.5rem;
+    border-radius: var(--border-radius-lg);
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--color-border-secondary);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--color-border-secondary);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+}
+
+.modal-header h3 {
+    font-size: 1.25rem;
+    color: var(--color-text-primary);
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    line-height: 1;
+}
+
+.modal-body .ex-table {
+    font-size: 14px;
+}
+
+.ex-table .animation-icon {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.ex-table .animation-icon:hover {
+    opacity: 1;
+}
+
+.modal-body .animation-container {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.modal-body .animation-container img {
+    max-width: 100%;
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--color-border-secondary);
+}
+
 @media (prefers-color-scheme: dark) {
     #day-mon-complete-btn:hover:not(:disabled), #day-tue-complete-btn:hover:not(:disabled) {
         background-color: #0a64c7;
@@ -344,6 +420,19 @@ button[disabled] {
   <button class="tab-btn" onclick="showTab('mobility',this)">Mobility</button>
   <button class="tab-btn" onclick="showTab('conditioning',this)">Conditioning</button>
   <button class="tab-btn" onclick="showTab('progression',this)">Progression</button>
+</div>
+
+<!-- WORKOUT DETAIL MODAL -->
+<div id="workout-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modal-date"></h3>
+            <button id="modal-close-btn" class="modal-close-btn">&times;</button>
+        </div>
+        <div id="modal-body" class="modal-body">
+            <!-- Exercise details will be populated here -->
+        </div>
+    </div>
 </div>
 
 <!-- TODAY'S WORKOUT -->
@@ -1091,6 +1180,7 @@ button[disabled] {
 
 </div>
 
+<script src="animations.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     setupTodaysWorkout();
@@ -1187,14 +1277,163 @@ function showDay(id, btn) {
   btn.classList.add('active');
 }
 
+async function showWorkoutDetail(date) {
+    const token = localStorage.getItem('google_id_token');
+    if (!token) return;
+
+    const response = await fetch(`/api/workouts?date=${date}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const session = await response.json();
+
+    const modalDate = document.getElementById('modal-date');
+    modalDate.textContent = new Date(date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    const modalBody = document.getElementById('modal-body');
+    
+    let tableHtml = `
+        <table class="ex-table">
+            <thead>
+                <tr>
+                    <th>Exercise</th>
+                    <th>Sets</th>
+                    <th>Reps</th>
+                    <th>Animation</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    session.exercises.forEach(ex => {
+        tableHtml += `
+            <tr>
+                <td>${ex.exercise_name}</td>
+                <td>${ex.sets}</td>
+                <td>${ex.reps}</td>
+                <td><img src="https://wger.de/static/images/icons/play-circle.svg" class="animation-icon"></td>
+            </tr>
+            <tr class="animation-row" style="display: none;"><td colspan="4"><div class="animation-container"></div></td></tr>
+        `;
+    });
+    
+    tableHtml += '</tbody></table>';
+    modalBody.innerHTML = tableHtml;
+
+    // Add event listeners for animation icons
+    modalBody.querySelectorAll('.animation-icon').forEach(icon => {
+        icon.addEventListener('click', () => {
+            const row = icon.closest('tr');
+            const exerciseName = row.cells[0].innerText;
+            const animationRow = row.nextElementSibling;
+            
+            // Toggle display of animation row
+            if (animationRow.style.display === 'none') {
+                // Hide any other visible animation rows
+                modalBody.querySelectorAll('.animation-row').forEach(ar => {
+                    if (ar !== animationRow) {
+                        ar.style.display = 'none';
+                    }
+                });
+                
+                animationRow.style.display = 'table-row';
+                const animationContainer = animationRow.querySelector('.animation-container');
+                showAnimation(exerciseName, animationContainer);
+            } else {
+                animationRow.style.display = 'none';
+            }
+        });
+    });
+
+    document.getElementById('workout-modal').style.display = 'flex';
+}
+
+function showAnimation(exerciseName, container) {
+    // First, try a direct match
+    let animationUrl = exerciseAnimations[exerciseName];
+
+    // If no direct match, try a case-insensitive match
+    if (!animationUrl) {
+        const lowerCaseExerciseName = exerciseName.toLowerCase();
+        const foundKey = Object.keys(exerciseAnimations).find(key => key.toLowerCase() === lowerCaseExerciseName);
+        if (foundKey) {
+            animationUrl = exerciseAnimations[foundKey];
+        }
+    }
+
+    if (animationUrl) {
+        container.innerHTML = `<img src="${animationUrl}" alt="${exerciseName} animation">`;
+    } else {
+        container.innerHTML = '<p>Animation not found.</p>';
+        console.warn(`Animation not found for exercise: "${exerciseName}"`);
+    }
+}
+
+async function fetchWgerData() {
+    const baseUrl = 'https://wger.de/api/v2/exerciseimage/?is_main=True&limit=200';
+    try {
+        const allImages = await fetchAllPages(baseUrl);
+        
+        // Get all exercise names from the page
+        const exerciseNames = new Set();
+        document.querySelectorAll('.ex-table tbody tr td:first-child').forEach(td => {
+            exerciseNames.add(td.innerText.trim());
+        });
+
+        // Now fetch exercise base info to link names to IDs
+        const exerciseBaseUrl = 'https://wger.de/api/v2/exercise/?limit=200&language=2';
+        const allExercises = await fetchAllPages(exerciseBaseUrl);
+
+        const exerciseIdToName = {};
+        allExercises.forEach(ex => {
+            exerciseIdToName[ex.id] = ex.name;
+        });
+
+        allImages.forEach(image => {
+            const exerciseName = exerciseIdToName[image.exercise_base];
+            if (exerciseName) {
+                // Prioritize direct matches
+                if (exerciseNames.has(exerciseName)) {
+                    exerciseAnimations[exerciseName] = image.image;
+                } else {
+                    // Fallback for slight mismatches (e.g., "Barbell Bench Press" vs "Bench Press")
+                    const lowerCaseName = exerciseName.toLowerCase();
+                    for (const name of exerciseNames) {
+                        if (name.toLowerCase().includes(lowerCaseName) || lowerCaseName.includes(name.toLowerCase())) {
+                            if (!exerciseAnimations[name]) { // Avoid overwriting a better match
+                                exerciseAnimations[name] = image.image;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        console.log('Animation data loaded:', exerciseAnimations);
+
+    } catch (error) {
+        console.error('Failed to fetch animation data from wger:', error);
+    }
+}
+
+async function fetchAllPages(url) {
+    let results = [];
+    let nextUrl = url;
+    while (nextUrl) {
+        const response = await fetch(nextUrl);
+        const data = await response.json();
+        results = results.concat(data.results);
+        nextUrl = data.next;
+    }
+    return results;
+}
+
 // --- Calendar Grid Logic ---
-document.addEventListener('DOMContentLoaded', function() {
+function initializeCalendar() {
     const prevMonthBtn = document.getElementById('prev-month-btn');
     const nextMonthBtn = document.getElementById('next-month-btn');
 
     let currentDate = new Date();
 
-    function renderCalendar(date) {
+    async function renderCalendar(date) {
         const monthYearHeader = document.getElementById('month-year-header');
         const calendarGrid = document.getElementById('calendar-grid');
 
@@ -1224,13 +1463,19 @@ document.addEventListener('DOMContentLoaded', function() {
             calendarGrid.appendChild(emptyCell);
         }
 
-        // Mock data - replace with actual data from your API later
-        const workoutData = {
-            '2026-05-01': 'workout',
-            '2026-05-02': 'workout',
-            '2026-05-03': 'rest',
-            '2026-05-04': 'workout', // Today
-        };
+        // Fetch workout data for the month
+        const token = localStorage.getItem('google_id_token');
+        let workoutData = {};
+        if (token) {
+            const response = await fetch(`/api/workouts?month=${year}-${String(month + 1).padStart(2, '0')}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const sessions = await response.json();
+            sessions.forEach(session => {
+                workoutData[session.date] = 'workout';
+            });
+        }
+
 
         const today = new Date();
         const todayString = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -1245,8 +1490,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (workoutData[dateString]) {
                 dayCell.classList.add(workoutData[dateString]);
+                dayCell.style.cursor = 'pointer';
+                dayCell.addEventListener('click', () => showWorkoutDetail(dateString));
             } else if (new Date(dateString) < new Date(todayString)) {
-                dayCell.classList.add('missed');
+                // You can decide what to do with past days without workouts
+                // For now, we'll just leave them plain
             }
             
             if (dateString === todayString) {
@@ -1269,5 +1517,82 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initial render
     renderCalendar(currentDate);
-});
+
+    // Close modal logic
+    document.getElementById('modal-close-btn').addEventListener('click', () => {
+        document.getElementById('workout-modal').style.display = 'none';
+    });
+    window.addEventListener('click', (event) => {
+        if (event.target == document.getElementById('workout-modal')) {
+            document.getElementById('workout-modal').style.display = 'none';
+        }
+    });
+}
+
+window.onload = async () => {
+    setupTodaysWorkout();
+    initializeCalendar();
+    
+    await fetchWgerData();
+
+    google.accounts.id.initialize({
+        client_id: "600485192811-7uut2v2abra8okm6q603erircdlhdtad.apps.googleusercontent.com",
+        callback: handleCredentialResponse
+    });
+    google.accounts.id.renderButton(
+        document.getElementById("user-profile"),
+        { theme: "outline", size: "large" }
+    );
+    google.accounts.id.prompt();
+};
+
+async function handleCredentialResponse(response) {
+    const id_token = response.credential;
+    
+    // Store the token
+    localStorage.setItem('google_id_token', id_token);
+
+    // Send token to backend to verify and get user info
+    const res = await fetch('/api/user', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token: id_token }),
+    });
+
+    const user = await res.json();
+    
+    // Update UI
+    const userProfileDiv = document.getElementById('user-profile');
+    userProfileDiv.innerHTML = `
+        <img src="${user.picture}" alt="User profile picture">
+        <span>${user.name}</span>
+        <button onclick="signOut()">Sign Out</button>
+    `;
+
+    // Re-render calendar with user's data
+    initializeCalendar();
+}
+
+function signOut() {
+    localStorage.removeItem('google_id_token');
+    // Optional: Revoke token with Google
+    // google.accounts.id.revoke(localStorage.getItem('google_user_email'), done => {
+    //     console.log('consent revoked');
+    // });
+    
+    // Update UI
+    const userProfileDiv = document.getElementById('user-profile');
+    userProfileDiv.innerHTML = ''; // Clear user info
+    google.accounts.id.renderButton(
+        userProfileDiv,
+        { theme: "outline", size: "large" }
+    );
+    
+    // Re-render calendar without user data
+    initializeCalendar();
+}
 </script>
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
