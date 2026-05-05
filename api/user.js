@@ -2,40 +2,51 @@ const { Pool } = require('pg');
 
 const pool = new Pool({
   connectionString: process.env.POSTGRES_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  ssl: { rejectUnauthorized: false }
 });
+
+async function verifyGoogleToken(token) {
+  const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${token}`);
+  if (!res.ok) throw new Error('Token verification failed');
+  const payload = await res.json();
+  if (payload.error) throw new Error(payload.error_description || 'Invalid token');
+  return {
+    google_id: payload.sub,
+    email: payload.email,
+    name: payload.name,
+    picture: payload.picture,
+  };
+}
 
 module.exports = async (req, res) => {
   if (req.method === 'POST') {
-    // Endpoint to find or create a user
     try {
-      const { email, name, google_id, picture } = req.body;
-
-      if (!email || !google_id) {
-        return res.status(400).json({ error: 'Email and Google ID are required' });
+      const { token } = req.body;
+      if (!token) {
+        return res.status(400).json({ error: 'ID token is required' });
       }
 
-      // Check if user exists
-      let user = await pool.query('SELECT * FROM users WHERE google_id = $1', [google_id]);
+      // Verify token with Google and extract user info
+      const { google_id, email, name, picture } = await verifyGoogleToken(token);
 
-      if (user.rows.length === 0) {
-        // Create user if they don't exist
-        const newUser = await pool.query(
+      // Upsert user in DB
+      let result = await pool.query('SELECT * FROM users WHERE google_id = $1', [google_id]);
+
+      if (result.rows.length === 0) {
+        result = await pool.query(
           'INSERT INTO users (email, name, google_id, picture) VALUES ($1, $2, $3, $4) RETURNING *',
           [email, name, google_id, picture]
         );
-        user = newUser;
-        console.log('New user created:', user.rows[0]);
+        console.log('New user created:', result.rows[0]);
       } else {
-        console.log('User found:', user.rows[0]);
+        console.log('User found:', result.rows[0]);
       }
 
-      res.status(200).json(user.rows[0]);
+      res.status(200).json(result.rows[0]);
     } catch (error) {
       console.error('Error in /api/user:', error);
-      res.status(500).json({ error: 'Internal Server Error', details: error.message });
+      const status = error.message.includes('Token') ? 401 : 500;
+      res.status(status).json({ error: error.message });
     }
   } else {
     res.setHeader('Allow', ['POST']);
