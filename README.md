@@ -35,13 +35,18 @@ git push -u origin main
 - Add a new environment variable:
   - **Name:** `POSTGRES_URL`
   - **Value:** Paste the connection string you got from your database provider.
+- Add another environment variable:
+  - **Name:** `GOOGLE_CLIENT_ID`
+  - **Value:** Your Google Sign-In OAuth client ID. This should match the client ID configured in the frontend.
 - Click "Deploy".
 
 Vercel will now build and deploy your website. Any future pushes to the `main` branch of your Git repository will automatically trigger a new deployment.
 
 ### 4. Set up the Database Table
 
-You need to create a table in your database to store the workout data. You can use the SQL editor provided by your database provider to run the following query:
+You need to create the tables used by the app in your database. At minimum, the backend expects `users`, `workout_sessions`, and `workout_exercises` tables.
+
+The original demo schema for the public progress page was:
 
 ```sql
 CREATE TABLE workouts (
@@ -54,5 +59,7 @@ CREATE TABLE workouts (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 ```
+
+That table is only part of the UI history tracker; the authenticated workout API now reads from the session tables above.
 
 Your website should now be live and connected to your database.

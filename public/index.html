@@ -783,6 +783,15 @@ async function showWorkoutDetail(date) {
     const response = await fetch(`/api/workouts?date=${date}`, {
         headers: { 'Authorization': `Bearer ${token}` }
     });
+
+    if (!response.ok) {
+        const errorPayload = await response.json().catch(() => ({}));
+        document.getElementById('modal-date').textContent = 'Workout unavailable';
+        document.getElementById('modal-body').innerHTML = `<p>${errorPayload.error || 'Unable to load workout details.'}</p>`;
+        document.getElementById('workout-modal').style.display = 'flex';
+        return;
+    }
+
     const session = await response.json();
 
     const modalDate = document.getElementById('modal-date');
@@ -803,7 +812,7 @@ async function showWorkoutDetail(date) {
             <tbody>
     `;
     
-    session.exercises.forEach(ex => {
+    (session.exercises || []).forEach(ex => {
         tableHtml += `
             <tr>
                 <td>${ex.exercise_name}</td>
@@ -925,6 +934,11 @@ async function fetchAllPages(url) {
     return results;
 }
 
+function getAuthHeaders() {
+    const token = localStorage.getItem('google_id_token');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 // --- Calendar Grid Logic ---
 function initializeCalendar() {
     const prevMonthBtn = document.getElementById('prev-month-btn');
@@ -963,16 +977,17 @@ function initializeCalendar() {
         }
 
         // Fetch workout data for the month
-        const token = localStorage.getItem('google_id_token');
         let workoutData = {};
-        if (token) {
+        if (localStorage.getItem('google_id_token')) {
             const response = await fetch(`/api/workouts?month=${year}-${String(month + 1).padStart(2, '0')}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: getAuthHeaders()
             });
-            const sessions = await response.json();
-            sessions.forEach(session => {
-                workoutData[session.date] = 'workout';
-            });
+            if (response.ok) {
+                const sessions = await response.json();
+                sessions.forEach(session => {
+                    workoutData[session.date] = 'workout';
+                });
+            }
         }
 
 
@@ -1059,6 +1074,13 @@ async function handleCredentialResponse(response) {
         body: JSON.stringify({ token: id_token }),
     });
 
+    if (!res.ok) {
+        localStorage.removeItem('google_id_token');
+        const errorPayload = await res.json().catch(() => ({}));
+        document.getElementById('user-profile').innerHTML = `<span>${errorPayload.error || 'Sign-in failed'}</span>`;
+        return;
+    }
+
     const user = await res.json();
     
     // Update UI
@@ -1092,5 +1114,4 @@ function signOut() {
     initializeCalendar();
 }
 </script>
-<script src="https://apis.google.com/js/platform.js" async defer></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
