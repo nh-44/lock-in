@@ -50,7 +50,11 @@ async function verifyGoogleToken(token) {
 async function resolveGoogleIdentity(req, { allowUnverifiedFallback = false } = {}) {
   const token = req.body?.token || getBearerToken(req);
   if (token) {
-    return verifyGoogleToken(token);
+    try {
+      return await verifyGoogleToken(token);
+    } catch (err) {
+      if (!allowUnverifiedFallback) throw err;
+    }
   }
 
   if (allowUnverifiedFallback) {

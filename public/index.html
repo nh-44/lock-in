@@ -1,3 +1,8 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 :root {
     --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -268,6 +273,11 @@ button[disabled] {
 }
 
 .calendar-day.rest {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.calendar-day.partial {
     background-color: #fef9c3;
     color: #854d0e;
 }
@@ -312,7 +322,7 @@ button[disabled] {
 }
 
 .legend-color.workout { background-color: #dcfce7; }
-.legend-color.rest { background-color: #fef9c3; }
+.legend-color.rest { background-color: #dbeafe; }
 .legend-color.missed { background-color: #fee2e2; }
 
 /* Modal Styles */
@@ -397,10 +407,12 @@ button[disabled] {
         background-color: #0a64c7;
     }
     .calendar-day.workout { background-color: #1a2e26; color: #34d399; }
-    .calendar-day.rest { background-color: #362f1c; color: #fde047; }
+    .calendar-day.rest { background-color: #1e293b; color: #93c5fd; }
+    .calendar-day.partial { background-color: #362f1c; color: #fde047; }
     .calendar-day.missed { background-color: #3f2323; color: #fca5a5; }
     .legend-color.workout { background-color: #1a2e26; }
-    .legend-color.rest { background-color: #362f1c; }
+    .legend-color.partial { background-color: #362f1c; }
+    .legend-color.rest { background-color: #1e293b; }
     .legend-color.missed { background-color: #3f2323; }
 }
 /* ── InBody Plan ── */
@@ -445,10 +457,13 @@ button[disabled] {
 .ib-metric-fill{height:100%;border-radius:99px}
 @media(max-width:500px){.ib-two-col{grid-template-columns:1fr}.ib-split-grid{grid-template-columns:repeat(4,1fr)}}
 </style>
+</head>
+<body>
 
 <div class="prog">
 <div class="header-bar">
-    <div class="logo">Workout Tracker</div>
+    <div class="logo">Lock-In</div>
+    <div id="streak-badge" style="display:none;font-size:13px;font-weight:600;color:var(--color-accent);margin-right:12px;">🔥 <span id="streak-count">0</span> day streak</div>
     <div id="user-profile" class="user-profile">
         <!-- This will be populated by JS -->
     </div>
@@ -473,6 +488,35 @@ button[disabled] {
     </div>
 </div>
 
+<!-- INBODY UPDATE MODAL -->
+<div id="inbody-modal" class="modal-backdrop" style="display: none;">
+    <div class="modal-content" style="max-width:450px">
+        <div class="modal-header">
+            <h3>Update InBody</h3>
+            <button onclick="closeInBodyModal()" class="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div style="display:grid;gap:12px">
+              <div><label style="font-size:12px;color:var(--color-text-secondary);display:block;margin-bottom:4px">Date</label><input type="date" id="inbody-date" style="width:100%;padding:8px 10px;border:1px solid var(--color-border-secondary);border-radius:6px;font-size:14px;background:var(--color-background-primary);color:var(--color-text-primary)"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div><label style="font-size:12px;color:var(--color-text-secondary);display:block;margin-bottom:4px">Body Fat %</label><input type="number" step="0.1" id="inbody-body-fat" placeholder="25.8" style="width:100%;padding:8px 10px;border:1px solid var(--color-border-secondary);border-radius:6px;font-size:14px;background:var(--color-background-primary);color:var(--color-text-primary)"></div>
+                <div><label style="font-size:12px;color:var(--color-text-secondary);display:block;margin-bottom:4px">Skeletal Muscle (kg)</label><input type="number" step="0.1" id="inbody-skeletal-muscle" placeholder="27.9" style="width:100%;padding:8px 10px;border:1px solid var(--color-border-secondary);border-radius:6px;font-size:14px;background:var(--color-background-primary);color:var(--color-text-primary)"></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div><label style="font-size:12px;color:var(--color-text-secondary);display:block;margin-bottom:4px">Trunk Fat %</label><input type="number" step="0.1" id="inbody-trunk-fat" placeholder="27" style="width:100%;padding:8px 10px;border:1px solid var(--color-border-secondary);border-radius:6px;font-size:14px;background:var(--color-background-primary);color:var(--color-text-primary)"></div>
+                <div><label style="font-size:12px;color:var(--color-text-secondary);display:block;margin-bottom:4px">WHR</label><input type="number" step="0.01" id="inbody-whr" placeholder="0.97" style="width:100%;padding:8px 10px;border:1px solid var(--color-border-secondary);border-radius:6px;font-size:14px;background:var(--color-background-primary);color:var(--color-text-primary)"></div>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                <div><label style="font-size:12px;color:var(--color-text-secondary);display:block;margin-bottom:4px">BMR (kcal)</label><input type="number" id="inbody-bmr" placeholder="1441" style="width:100%;padding:8px 10px;border:1px solid var(--color-border-secondary);border-radius:6px;font-size:14px;background:var(--color-background-primary);color:var(--color-text-primary)"></div>
+                <div><label style="font-size:12px;color:var(--color-text-secondary);display:block;margin-bottom:4px">Recovery %</label><input type="number" step="1" id="inbody-recovery" placeholder="70" style="width:100%;padding:8px 10px;border:1px solid var(--color-border-secondary);border-radius:6px;font-size:14px;background:var(--color-background-primary);color:var(--color-text-primary)"></div>
+              </div>
+              <button onclick="saveInBody()" style="width:100%;padding:10px;border-radius:8px;border:none;background:var(--color-accent);color:white;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px">Save</button>
+              <div id="inbody-save-status" style="font-size:13px;font-weight:500;margin-top:4px"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- TODAY'S WORKOUT -->
 <div id="tab-today" class="tab-content visible">
     <div id="todays-workout-content"></div>
@@ -480,22 +524,36 @@ button[disabled] {
 
 <!-- SCHEDULE -->
 <div id="tab-schedule" class="tab-content">
+<!-- LOCK-IN DASHBOARD -->
+<p class="ib-section-title">Lock-In Dashboard</p>
+<div id="lockin-dashboard" class="ib-stat-grid">
+<div class="ib-stat-card"><div class="ib-stat-label">Current Streak</div><div class="ib-stat-val" id="stat-streak">—</div><div class="ib-stat-sub">Best: <span id="stat-best-streak">—</span></div></div>
+<div class="ib-stat-card"><div class="ib-stat-label">This Week</div><div class="ib-stat-val" id="stat-week">—</div><div class="ib-stat-sub"><span id="stat-week-sub">/6 days</span></div></div>
+<div class="ib-stat-card"><div class="ib-stat-label">Lock-In Score</div><div class="ib-stat-val" id="stat-score">—</div><div class="ib-stat-sub">Adherence-based</div></div>
+<div class="ib-stat-card"><div class="ib-stat-label">Total Workouts</div><div class="ib-stat-val" id="stat-total">—</div><div class="ib-stat-sub">All time</div></div>
+<div class="ib-stat-card"><div class="ib-stat-label">This Month</div><div class="ib-stat-val" id="stat-month">—</div><div class="ib-stat-sub"><span id="stat-month-sub">Adherence</span></div></div>
+<div class="ib-stat-card"><div class="ib-stat-label">Worked Out Today</div><div class="ib-stat-val" id="stat-today" style="font-size:16px">—</div><div class="ib-stat-sub">Keep it going!</div></div>
+</div>
+
 <p class="ib-section-title">Body Composition Snapshot</p>
-<div class="ib-stat-grid">
-<div class="ib-stat-card"><div class="ib-stat-label">Body fat</div><div class="ib-stat-val">25.8%<span class="badge-ib b-high">High</span></div><div class="ib-stat-sub">Target: ≤18%</div></div>
-<div class="ib-stat-card"><div class="ib-stat-label">Skeletal muscle</div><div class="ib-stat-val">27.9 kg<span class="badge-ib b-ok2">Normal</span></div><div class="ib-stat-sub">+4.5 kg target gain</div></div>
-<div class="ib-stat-card"><div class="ib-stat-label">Trunk fat</div><div class="ib-stat-val">27%<span class="badge-ib b-high">High</span></div><div class="ib-stat-sub">Priority reduction zone</div></div>
-<div class="ib-stat-card"><div class="ib-stat-label">WHR</div><div class="ib-stat-val">0.97<span class="badge-ib b-high">High</span></div><div class="ib-stat-sub">Normal: 0.80–0.90</div></div>
-<div class="ib-stat-card"><div class="ib-stat-label">BMR</div><div class="ib-stat-val">1441 kcal</div><div class="ib-stat-sub">Target intake ~1900</div></div>
-<div class="ib-stat-card"><div class="ib-stat-label">Recovery status</div><div class="ib-stat-val">~70%</div><div class="ib-stat-sub">Post-dengue + typhoid</div></div>
+<div id="inbody-dashboard">
+  <div id="inbody-grid" class="ib-stat-grid">
+    <div class="ib-stat-card"><div class="ib-stat-label">Body fat</div><div class="ib-stat-val"><span id="ib-body-fat">—</span><span id="ib-badge-bf" class="badge-ib"></span></div><div class="ib-stat-sub">Target: ≤18%</div></div>
+    <div class="ib-stat-card"><div class="ib-stat-label">Skeletal muscle</div><div class="ib-stat-val"><span id="ib-skeletal-muscle">—</span><span id="ib-badge-sm" class="badge-ib"></span></div><div class="ib-stat-sub">+4.5 kg to target gain</div></div>
+    <div class="ib-stat-card"><div class="ib-stat-label">Trunk fat</div><div class="ib-stat-val"><span id="ib-trunk-fat">—</span><span id="ib-badge-tf" class="badge-ib"></span></div><div class="ib-stat-sub">Priority reduction zone</div></div>
+    <div class="ib-stat-card"><div class="ib-stat-label">WHR</div><div class="ib-stat-val"><span id="ib-whr">—</span><span id="ib-badge-whr" class="badge-ib"></span></div><div class="ib-stat-sub">Normal: 0.80–0.90</div></div>
+    <div class="ib-stat-card"><div class="ib-stat-label">BMR</div><div class="ib-stat-val"><span id="ib-bmr">—</span></div><div class="ib-stat-sub">Target intake ~1900 kcal</div></div>
+    <div class="ib-stat-card"><div class="ib-stat-label">Recovery status</div><div class="ib-stat-val"><span id="ib-recovery">—</span></div><div class="ib-stat-sub">Post-dengue + typhoid</div></div>
+  </div>
+  <div style="margin-bottom:0.5rem;text-align:right"><button onclick="showInBodyModal()" style="font-size:12px;padding:6px 14px;border-radius:8px;border:1px solid var(--color-accent);background:var(--color-accent);color:white;cursor:pointer;font-weight:500">+ Update InBody</button></div>
 </div>
 
 <p class="ib-section-title">Key Metrics — Track Progress</p>
 <div class="section-card" style="padding:1rem 1.25rem;margin-bottom:1.5rem">
-<div class="ib-metric-bar"><div class="ib-metric-label"><span class="name">Body Fat %</span><span class="val">25.8% → target ≤18%</span></div><div class="ib-metric-track"><div class="ib-metric-fill" style="width:62%;background:#f43f5e"></div></div></div>
-<div class="ib-metric-bar"><div class="ib-metric-label"><span class="name">Skeletal Muscle Mass</span><span class="val">27.9 kg → target 32.4 kg</span></div><div class="ib-metric-track"><div class="ib-metric-fill" style="width:70%;background:#10b981"></div></div></div>
-<div class="ib-metric-bar"><div class="ib-metric-label"><span class="name">Waist-Hip Ratio</span><span class="val">0.97 → target ≤0.90</span></div><div class="ib-metric-track"><div class="ib-metric-fill" style="width:78%;background:#f97316"></div></div></div>
-<div style="font-size:11px;color:var(--color-text-secondary);margin-top:8px">Re-test InBody in 8–10 weeks. Track: PBF (target &lt;22%), SMM (target &gt;29 kg), WHR (target &lt;0.92).</div>
+<div class="ib-metric-bar"><div class="ib-metric-label"><span class="name">Body Fat %</span><span class="val"><span id="mf-bf-val">—</span> → target ≤18%</span></div><div class="ib-metric-track"><div id="mf-bf-bar" class="ib-metric-fill" style="width:0%;background:#f43f5e"></div></div></div>
+<div class="ib-metric-bar"><div class="ib-metric-label"><span class="name">Skeletal Muscle Mass</span><span class="val"><span id="mf-sm-val">—</span> → target 32.4 kg</span></div><div class="ib-metric-track"><div id="mf-sm-bar" class="ib-metric-fill" style="width:0%;background:#10b981"></div></div></div>
+<div class="ib-metric-bar"><div class="ib-metric-label"><span class="name">Waist-Hip Ratio</span><span class="val"><span id="mf-whr-val">—</span> → target ≤0.90</span></div><div class="ib-metric-track"><div id="mf-whr-bar" class="ib-metric-fill" style="width:0%;background:#f97316"></div></div></div>
+<div style="font-size:11px;color:var(--color-text-secondary);margin-top:8px">Re-test InBody in 8-10 weeks. Track: PBF (target &lt;22%), SMM (target &gt;29 kg), WHR (target &lt;0.92).</div>
 </div>
 <hr style="border:none;border-top:.5px solid var(--color-border-tertiary);margin:2rem 0">
 <p class="ib-section-title">Weekly Split Overview</p>
@@ -554,9 +612,9 @@ button[disabled] {
 <tr><td>8</td><td><b>Hanging knee/leg raise</b> <span class="anim-icon" onclick="showAnimation('Hanging knee/leg raise', this.nextElementSibling)" style="cursor:pointer;color:var(--color-accent);margin-left:5px;font-size:11px;border:1px solid var(--color-accent);padding:2px 6px;border-radius:4px;display:inline-block;margin-top:4px;">▶ Play</span><div class="anim-container"></div> <span class="ph ph-f">Functional</span></td><td>3×15</td><td>45 s</td><td>Dead hang start, curl hips, slow lower.</td><td class="ex-status" style="text-align:center"><input type="checkbox" onchange="checkCompletion('day-mon')"></td></tr>
 </tbody></table>
 <div class="ib-warm" style="margin-top:8px"><strong>Cool-down:</strong> Chest doorway stretch 60 s, cross-body shoulder 45 s each, tricep stretch 30 s, diaphragmatic breathing 2 min.</div>
-<div style="margin-top:20px;text-align:center"><button class="btn" onclick="markDayComplete('day-mon')" id="day-mon-complete-btn" style="width:100%;padding:10px;border-radius:var(--border-radius-md);background:var(--color-accent);color:white;border:none" disabled>Mark Day Complete</button><div id="day-mon-completion-status"></div></div></div></div>
-
-<!-- TUESDAY -->
+<div style="margin-top:20px;text-align:center"><button class="btn" onclick="markDayComplete('day-mon')" id="day-mon-complete-btn" style="width:100%;padding:10px;border-radius:var(--border-radius-md);background:var(--color-accent);color:white;border:none" disabled>Mark Day Complete</button><div style="margin-top:8px"><button onclick="markDayRest('day-mon')" id="day-mon-rest-btn" style="font-size:12px;padding:6px 14px;border-radius:8px;border:1px solid var(--color-text-tertiary);background:transparent;color:var(--color-text-secondary);cursor:pointer">Mark Rest Day</button></div><div id="day-mon-completion-status"></div></div></div></div>
+ 
+ <!-- TUESDAY -->
 <div id="day-tue" class="day-section session">
 <div class="ib-day-card">
 <div class="ib-day-title">Tuesday — Back · Biceps + Forearm Priority</div>
@@ -572,9 +630,9 @@ button[disabled] {
 <tr><td>8</td><td><b>Wrist roller / reverse curl</b> <span class="anim-icon" onclick="showAnimation('Wrist roller / reverse curl', this.nextElementSibling)" style="cursor:pointer;color:var(--color-accent);margin-left:5px;font-size:11px;border:1px solid var(--color-accent);padding:2px 6px;border-radius:4px;display:inline-block;margin-top:4px;">▶ Play</span><div class="anim-container"></div> <span class="ph ph-a">Accessory</span><br><small>Forearm extensor focus. Balances brachioradialis.</small></td><td>3×15</td><td>45 s</td><td>Arms extended, slow and controlled.</td><td class="ex-status" style="text-align:center"><input type="checkbox" onchange="checkCompletion('day-tue')"></td></tr>
 </tbody></table>
 <div class="ib-warm" style="margin-top:8px"><strong>Cool-down:</strong> Lat stretch on rack 60 s each, doorway bicep stretch, forearm flexor/extensor stretches, thoracic foam roll 2 min.</div>
-<div style="margin-top:20px;text-align:center"><button class="btn" onclick="markDayComplete('day-tue')" id="day-tue-complete-btn" style="width:100%;padding:10px;border-radius:var(--border-radius-md);background:var(--color-accent);color:white;border:none" disabled>Mark Day Complete</button><div id="day-tue-completion-status"></div></div></div></div>
-
-<!-- WEDNESDAY -->
+<div style="margin-top:20px;text-align:center"><button class="btn" onclick="markDayComplete('day-tue')" id="day-tue-complete-btn" style="width:100%;padding:10px;border-radius:var(--border-radius-md);background:var(--color-accent);color:white;border:none" disabled>Mark Day Complete</button><div style="margin-top:8px"><button onclick="markDayRest('day-tue')" id="day-tue-rest-btn" style="font-size:12px;padding:6px 14px;border-radius:8px;border:1px solid var(--color-text-tertiary);background:transparent;color:var(--color-text-secondary);cursor:pointer">Mark Rest Day</button></div><div id="day-tue-completion-status"></div></div></div></div>
+ 
+ <!-- WEDNESDAY -->
 <div id="day-wed" class="day-section session">
 <div class="ib-day-card">
 <div class="ib-day-title">Wednesday — Legs + Glutes (Priority Day)</div>
@@ -590,9 +648,9 @@ button[disabled] {
 <tr><td>8</td><td><b>Barbell hip thrust</b> <span class="anim-icon" onclick="showAnimation('Barbell hip thrust', this.nextElementSibling)" style="cursor:pointer;color:var(--color-accent);margin-left:5px;font-size:11px;border:1px solid var(--color-accent);padding:2px 6px;border-radius:4px;display:inline-block;margin-top:4px;">▶ Play</span><div class="anim-container"></div> <span class="ph ph-f">Functional</span><br><small>Posterior chain finisher.</small></td><td>3×15</td><td>60 s</td><td>Bar on hip crease with pad, drive through heels.</td><td class="ex-status" style="text-align:center"><input type="checkbox" onchange="checkCompletion('day-wed')"></td></tr>
 </tbody></table>
 <div class="ib-warm" style="margin-top:8px"><strong>Cool-down:</strong> Pigeon pose 90 s each, quad stretch, hamstring stretch, calf stretch on ramp, hip flexor lunge. Essential given weekend cycling.</div>
-<div style="margin-top:20px;text-align:center"><button class="btn" onclick="markDayComplete('day-wed')" id="day-wed-complete-btn" style="width:100%;padding:10px;border-radius:var(--border-radius-md);background:var(--color-accent);color:white;border:none" disabled>Mark Day Complete</button><div id="day-wed-completion-status"></div></div></div></div>
-
-<!-- THURSDAY -->
+<div style="margin-top:20px;text-align:center"><button class="btn" onclick="markDayComplete('day-wed')" id="day-wed-complete-btn" style="width:100%;padding:10px;border-radius:var(--border-radius-md);background:var(--color-accent);color:white;border:none" disabled>Mark Day Complete</button><div style="margin-top:8px"><button onclick="markDayRest('day-wed')" id="day-wed-rest-btn" style="font-size:12px;padding:6px 14px;border-radius:8px;border:1px solid var(--color-text-tertiary);background:transparent;color:var(--color-text-secondary);cursor:pointer">Mark Rest Day</button></div><div id="day-wed-completion-status"></div></div></div></div>
+ 
+ <!-- THURSDAY -->
 <div id="day-thu" class="day-section session">
 <div class="ib-day-card">
 <div class="ib-day-title">Thursday — HIIT + Conditioning + Mobility</div>
@@ -608,9 +666,9 @@ button[disabled] {
 <tr><td>Mobility 5</td><td><b>Ankle CARs + calf leans</b> <span class="anim-icon" onclick="showAnimation('Ankle CARs + calf leans', this.nextElementSibling)" style="cursor:pointer;color:var(--color-accent);margin-left:5px;font-size:11px;border:1px solid var(--color-accent);padding:2px 6px;border-radius:4px;display:inline-block;margin-top:4px;">▶ Play</span><div class="anim-container"></div> <span class="ph ph-m">Mobility</span></td><td>2×10 each direction</td><td>Essential for squat depth and running economy.</td><td class="ex-status" style="text-align:center"><input type="checkbox" onchange="checkCompletion('day-thu')"></td></tr>
 <tr><td>Breathwork</td><td><b>Box breathing 4-4-4-4</b> <span class="anim-icon" onclick="showAnimation('Box breathing 4-4-4-4', this.nextElementSibling)" style="cursor:pointer;color:var(--color-accent);margin-left:5px">▶ Play</span><div class="anim-container"></div></td><td>10 min</td><td>Activates parasympathetic system. Critical post-illness.</td><td class="ex-status" style="text-align:center"><input type="checkbox" onchange="checkCompletion('day-thu')"></td></tr>
 </tbody></table>
-<div style="margin-top:20px;text-align:center"><button class="btn" onclick="markDayComplete('day-thu')" id="day-thu-complete-btn" style="width:100%;padding:10px;border-radius:var(--border-radius-md);background:var(--color-accent);color:white;border:none" disabled>Mark Day Complete</button><div id="day-thu-completion-status"></div></div></div></div>
-
-<!-- FRIDAY -->
+<div style="margin-top:20px;text-align:center"><button class="btn" onclick="markDayComplete('day-thu')" id="day-thu-complete-btn" style="width:100%;padding:10px;border-radius:var(--border-radius-md);background:var(--color-accent);color:white;border:none" disabled>Mark Day Complete</button><div style="margin-top:8px"><button onclick="markDayRest('day-thu')" id="day-thu-rest-btn" style="font-size:12px;padding:6px 14px;border-radius:8px;border:1px solid var(--color-text-tertiary);background:transparent;color:var(--color-text-secondary);cursor:pointer">Mark Rest Day</button></div><div id="day-thu-completion-status"></div></div></div></div>
+ 
+ <!-- FRIDAY -->
 <div id="day-fri" class="day-section session">
 <div class="ib-day-card">
 <div class="ib-day-title">Friday — Shoulders · Chest (volume) · Triceps</div>
@@ -625,9 +683,9 @@ button[disabled] {
 <tr><td>7</td><td><b>Plank to push-up</b> <span class="anim-icon" onclick="showAnimation('Plank to push-up', this.nextElementSibling)" style="cursor:pointer;color:var(--color-accent);margin-left:5px;font-size:11px;border:1px solid var(--color-accent);padding:2px 6px;border-radius:4px;display:inline-block;margin-top:4px;">▶ Play</span><div class="anim-container"></div> <span class="ph ph-f">Functional</span><br><small>Shoulder stability + core integration.</small></td><td>3×10</td><td>45 s</td><td>Hips level, no rotation, breathe continuously.</td><td class="ex-status" style="text-align:center"><input type="checkbox" onchange="checkCompletion('day-fri')"></td></tr>
 </tbody></table>
 <div class="ib-warm" style="margin-top:8px"><strong>Cool-down:</strong> Overhead lat stretch, cross-body shoulder, chest opener on bench, prone cobra 60 s.</div>
-<div style="margin-top:20px;text-align:center"><button class="btn" onclick="markDayComplete('day-fri')" id="day-fri-complete-btn" style="width:100%;padding:10px;border-radius:var(--border-radius-md);background:var(--color-accent);color:white;border:none" disabled>Mark Day Complete</button><div id="day-fri-completion-status"></div></div></div></div>
-
-<!-- SATURDAY -->
+<div style="margin-top:20px;text-align:center"><button class="btn" onclick="markDayComplete('day-fri')" id="day-fri-complete-btn" style="width:100%;padding:10px;border-radius:var(--border-radius-md);background:var(--color-accent);color:white;border:none" disabled>Mark Day Complete</button><div style="margin-top:8px"><button onclick="markDayRest('day-fri')" id="day-fri-rest-btn" style="font-size:12px;padding:6px 14px;border-radius:8px;border:1px solid var(--color-text-tertiary);background:transparent;color:var(--color-text-secondary);cursor:pointer">Mark Rest Day</button></div><div id="day-fri-completion-status"></div></div></div></div>
+ 
+ <!-- SATURDAY -->
 <div id="day-sat" class="day-section session">
 <div class="ib-day-card">
 <div class="ib-day-title">Saturday — Back (volume) · Biceps + Forearm Priority</div>
@@ -642,14 +700,14 @@ button[disabled] {
 <tr><td>7</td><td><b>Dead hang (max duration)</b> <span class="anim-icon" onclick="showAnimation('Dead hang (max duration)', this.nextElementSibling)" style="cursor:pointer;color:var(--color-accent);margin-left:5px;font-size:11px;border:1px solid var(--color-accent);padding:2px 6px;border-radius:4px;display:inline-block;margin-top:4px;">▶ Play</span><div class="anim-container"></div> <span class="ph ph-f">Functional</span><br><small>Grip + shoulder decompression. End of session.</small></td><td>3×max</td><td>90 s</td><td>Full passive hang, breathe diaphragmatically.</td><td class="ex-status" style="text-align:center"><input type="checkbox" onchange="checkCompletion('day-sat')"></td></tr>
 <tr><td>8</td><td><b>Barbell wrist curl (behind back)</b> <span class="anim-icon" onclick="showAnimation('Barbell wrist curl (behind back)', this.nextElementSibling)" style="cursor:pointer;color:var(--color-accent);margin-left:5px;font-size:11px;border:1px solid var(--color-accent);padding:2px 6px;border-radius:4px;display:inline-block;margin-top:4px;">▶ Play</span><div class="anim-container"></div> <span class="ph ph-a">Accessory</span></td><td>3×20</td><td>45 s</td><td>Full wrist flexion + extension ROM. Light weight.</td><td class="ex-status" style="text-align:center"><input type="checkbox" onchange="checkCompletion('day-sat')"></td></tr>
 </tbody></table>
-<div style="margin-top:20px;text-align:center"><button class="btn" onclick="markDayComplete('day-sat')" id="day-sat-complete-btn" style="width:100%;padding:10px;border-radius:var(--border-radius-md);background:var(--color-accent);color:white;border:none" disabled>Mark Day Complete</button><div id="day-sat-completion-status"></div></div></div></div>
+<div style="margin-top:20px;text-align:center"><button class="btn" onclick="markDayComplete('day-sat')" id="day-sat-complete-btn" style="width:100%;padding:10px;border-radius:var(--border-radius-md);background:var(--color-accent);color:white;border:none" disabled>Mark Day Complete</button><div style="margin-top:8px"><button onclick="markDayRest('day-sat')" id="day-sat-rest-btn" style="font-size:12px;padding:6px 14px;border-radius:8px;border:1px solid var(--color-text-tertiary);background:transparent;color:var(--color-text-secondary);cursor:pointer">Mark Rest Day</button></div><div id="day-sat-completion-status"></div></div></div></div>
 <!-- SUNDAY -->
 <div id="day-sun" class="day-section session">
 <div class="ib-day-card">
 <div class="ib-day-title">Sunday — Rest / Active Recovery</div>
 <div class="ib-day-focus">Outdoor cycling or running 45-60 min. Zone 2 HR.</div>
 <div style="margin-top:20px;text-align:center">
-<button class="btn" onclick="markDayComplete('day-sun')" id="day-sun-complete-btn" style="width:100%;padding:10px;border-radius:var(--border-radius-md);background:var(--color-accent);color:white;border:none">Mark Rest Day Complete</button>
+<button class="btn" onclick="markDayRest('day-sun')" id="day-sun-rest-btn" style="width:100%;padding:10px;border-radius:var(--border-radius-md);background:var(--color-accent);color:white;border:none">Mark Rest Day</button>
 <div id="day-sun-completion-status"></div>
 </div>
 </div></div>
@@ -668,7 +726,8 @@ button[disabled] {
             <!-- Calendar days will be generated by JavaScript -->
         </div>
         <div class="calendar-legend">
-            <div><span class="legend-color workout"></span> Workout</div>
+            <div><span class="legend-color workout"></span> Completed</div>
+            <div><span class="legend-color partial"></span> Partial</div>
             <div><span class="legend-color rest"></span> Rest</div>
             <div><span class="legend-color missed"></span> Missed</div>
         </div>
@@ -717,24 +776,297 @@ function checkCompletion(dayId) {
     const checkboxes = dayContainer.querySelectorAll('input[type="checkbox"]');
     const checked = dayContainer.querySelectorAll('input[type="checkbox"]:checked');
     
-    let allGroupsComplete = (checkboxes.length > 0 && checkboxes.length === checked.length);
+    const anyChecked = checked.length > 0;
 
     const completeBtn = dayContainer.querySelector('#' + dayId + '-complete-btn');
     if (completeBtn) {
-        completeBtn.disabled = !allGroupsComplete;
+        completeBtn.disabled = !anyChecked;
+        const pct = checkboxes.length > 0 ? Math.round((checked.length / checkboxes.length) * 100) : 0;
+        completeBtn.textContent = pct >= 100 ? 'Mark Day Complete' : `Log ${checked.length}/${checkboxes.length} exercises`;
     }
 }
 
-function markDayComplete(dayId) {
+// ── Lock-In API ──
+
+async function fetchLockInStats() {
+    const token = localStorage.getItem('google_id_token');
+    if (!token) return;
+    try {
+        const now = new Date();
+        const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+        const res = await fetch(`/api/stats?google_id=${encodeURIComponent(token)}&today=${todayStr}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (!res.ok) return;
+        const stats = await res.json();
+
+        document.getElementById('streak-count').textContent = stats.currentStreak;
+        document.getElementById('streak-badge').style.display = stats.currentStreak > 0 ? 'inline-block' : 'none';
+
+        document.getElementById('stat-streak').textContent = `${stats.currentStreak} day${stats.currentStreak !== 1 ? 's' : ''} 🔒`;
+        document.getElementById('stat-best-streak').textContent = stats.bestStreak;
+        document.getElementById('stat-week').textContent = `${stats.weekCompleted}/${stats.weekExpected} (${stats.weekAdherence}%)`;
+        document.getElementById('stat-week-sub').textContent = stats.workedOutToday ? '✓ done today' : `${stats.weekExpected - stats.weekCompleted} left this week`;
+        document.getElementById('stat-score').textContent = `${stats.lockInScore}/100`;
+        document.getElementById('stat-total').textContent = stats.totalWorkouts;
+        document.getElementById('stat-month').textContent = `${stats.monthCompleted} (${stats.monthAdherence}%)`;
+        document.getElementById('stat-month-sub').textContent = `${stats.monthExpected} expected`;
+        document.getElementById('stat-today').textContent = stats.workedOutToday ? '✅ Yes' : '❌ Not yet';
+    } catch (e) {
+        console.error('Failed to fetch stats:', e);
+    }
+}
+
+async function fetchInBodyData() {
+    const token = localStorage.getItem('google_id_token');
+    if (!token) return;
+    try {
+        const res = await fetch(`/api/inbody?google_id=${encodeURIComponent(token)}`, { headers: { 'Authorization': `Bearer ${token}` } });
+        if (!res.ok) return;
+        const logs = await res.json();
+        if (logs.length === 0) return;
+
+        const latest = logs[0];
+        const setVal = (id, val, suffix = '') => {
+            const el = document.getElementById(id);
+            if (el && val != null) el.textContent = `${val}${suffix}`;
+        };
+        setVal('ib-body-fat', latest.body_fat, '%');
+        setVal('ib-skeletal-muscle', latest.skeletal_muscle, ' kg');
+        setVal('ib-trunk-fat', latest.trunk_fat, '%');
+        setVal('ib-whr', latest.whr);
+        setVal('ib-bmr', latest.bmr, ' kcal');
+        setVal('mf-bf-val', latest.body_fat, '%');
+        setVal('mf-sm-val', latest.skeletal_muscle, ' kg');
+        setVal('mf-whr-val', latest.whr);
+        if (latest.recovery_status != null) {
+            const el = document.getElementById('ib-recovery');
+            if (el) el.textContent = `~${latest.recovery_status}%`;
+        }
+
+        const setBadge = (id, text, className) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = text;
+            el.className = 'badge-ib ' + className;
+        };
+        const bf = latest.body_fat;
+        if (bf != null) setBadge('ib-badge-bf', bf > 22 ? 'High' : bf > 18 ? 'Elevated' : 'OK', bf > 22 ? 'b-high' : bf > 18 ? 'b-warn2' : 'b-ok2');
+        const sm = latest.skeletal_muscle;
+        if (sm != null) setBadge('ib-badge-sm', sm >= 30 ? 'Normal' : 'Low', sm >= 30 ? 'b-ok2' : 'b-high');
+        const tf = latest.trunk_fat;
+        if (tf != null) setBadge('ib-badge-tf', tf > 22 ? 'High' : 'Normal', tf > 22 ? 'b-high' : 'b-ok2');
+        const whr = latest.whr;
+        if (whr != null) setBadge('ib-badge-whr', whr > 0.90 ? 'High' : whr > 0.80 ? 'Borderline' : 'Normal', whr > 0.90 ? 'b-high' : whr > 0.80 ? 'b-warn2' : 'b-ok2');
+
+        const setBar = (id, pct) => {
+            const el = document.getElementById(id);
+            if (el) el.style.width = Math.min(pct, 100) + '%';
+        };
+        if (bf != null) setBar('mf-bf-bar', 100 - (bf - 10) / 25 * 100);
+        if (sm != null) setBar('mf-sm-bar', sm / 35 * 100);
+        if (whr != null) setBar('mf-whr-bar', 100 - (whr - 0.65) / 0.35 * 100);
+    } catch (e) {
+        console.error('Failed to fetch inbody:', e);
+    }
+}
+
+function showInBodyModal() {
+    const now = new Date();
+    document.getElementById('inbody-date').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    document.getElementById('inbody-modal').style.display = 'flex';
+    document.getElementById('inbody-save-status').textContent = '';
+}
+
+function closeInBodyModal() {
+    document.getElementById('inbody-modal').style.display = 'none';
+}
+
+async function saveInBody() {
+    const token = localStorage.getItem('google_id_token');
+    if (!token) return;
+    const statusEl = document.getElementById('inbody-save-status');
+    if (!statusEl) return;
+    statusEl.textContent = 'Saving...';
+    statusEl.style.color = 'var(--color-text-secondary)';
+    try {
+        const res = await fetch('/api/inbody', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({
+                google_id: token,
+                date: document.getElementById('inbody-date').value,
+                body_fat: parseFloat(document.getElementById('inbody-body-fat').value) || null,
+                skeletal_muscle: parseFloat(document.getElementById('inbody-skeletal-muscle').value) || null,
+                trunk_fat: parseFloat(document.getElementById('inbody-trunk-fat').value) || null,
+                whr: parseFloat(document.getElementById('inbody-whr').value) || null,
+                bmr: parseInt(document.getElementById('inbody-bmr').value) || null,
+                recovery_status: parseInt(document.getElementById('inbody-recovery').value) || null
+            })
+        });
+        if (res.ok) {
+            statusEl.textContent = 'Saved! ✅';
+            statusEl.style.color = 'var(--color-rest-text)';
+            fetchInBodyData();
+            setTimeout(closeInBodyModal, 1200);
+        } else {
+            const err = await res.json().catch(() => ({}));
+            statusEl.textContent = `Error: ${err.error || 'Failed to save'}`;
+            statusEl.style.color = 'red';
+        }
+    } catch (e) {
+        statusEl.textContent = 'Network error';
+        statusEl.style.color = 'red';
+    }
+}
+
+async function markDayComplete(dayId) {
     const dayContainer = document.getElementById(dayId);
     if (!dayContainer) return;
 
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+    const table = dayContainer.querySelector('.ex-table');
+    const exercises = [];
+    let totalCheckboxes = 0;
+    let checkedCount = 0;
+    if (table) {
+        table.querySelectorAll('tbody tr').forEach(row => {
+            const checkbox = row.querySelector('input[type="checkbox"]');
+            if (!checkbox) return;
+            totalCheckboxes++;
+            const nameEl = row.querySelector('td:nth-child(2) b');
+            if (!nameEl) return;
+            const name = nameEl.textContent.trim();
+            if (name && checkbox.checked) {
+                checkedCount++;
+                exercises.push({ name });
+            }
+        });
+    }
+    const completionPct = totalCheckboxes > 0 ? Math.round((checkedCount / totalCheckboxes) * 100) : 100;
+
+    const token = localStorage.getItem('google_id_token');
     const statusDiv = dayContainer.querySelector(`#${dayId}-completion-status`);
-    if (statusDiv) {
-        statusDiv.textContent = 'Workout completed for the day!';
-        statusDiv.style.color = 'green';
-        statusDiv.style.fontWeight = 'bold';
-        statusDiv.style.marginTop = '1rem';
+    if (!statusDiv) return;
+    statusDiv.textContent = 'Saving...';
+    statusDiv.style.color = 'var(--color-text-secondary)';
+    statusDiv.style.fontWeight = 'normal';
+    statusDiv.style.marginTop = '1rem';
+
+    try {
+        const res = await fetch('/api/workouts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            },
+            body: JSON.stringify({ date: dateStr, exercises, completion_pct: completionPct, google_id: token })
+        });
+
+        if (res.ok) {
+            const label = completionPct >= 100 ? 'Locked in! 🔒' : `Logged (${completionPct}%)`;
+            statusDiv.textContent = label;
+            statusDiv.style.color = 'var(--color-rest-text)';
+            statusDiv.style.fontWeight = 'bold';
+            const btn = dayContainer.querySelector(`#${dayId}-complete-btn`);
+            if (btn) btn.disabled = true;
+            const restBtn = dayContainer.querySelector(`#${dayId}-rest-btn`);
+            if (restBtn) restBtn.disabled = true;
+            fetchLockInStats();
+            initializeCalendar();
+        } else {
+            const err = await res.json().catch(() => ({}));
+            statusDiv.textContent = `Error: ${err.error || 'Failed to save'}`;
+            statusDiv.style.color = 'red';
+        }
+    } catch (e) {
+        statusDiv.textContent = 'Network error. Check your connection.';
+        statusDiv.style.color = 'red';
+    }
+}
+
+async function getRestDaysThisWeek() {
+    const token = localStorage.getItem('google_id_token');
+    if (!token) return 0;
+    try {
+        const now = new Date();
+        const dayOfWeek = now.getDay();
+        const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+        const monday = new Date(now);
+        monday.setDate(now.getDate() + mondayOffset);
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+
+        const mondayStr = `${monday.getFullYear()}-${String(monday.getMonth()+1).padStart(2,'0')}-${String(monday.getDate()).padStart(2,'0')}`;
+        const sundayStr = `${sunday.getFullYear()}-${String(sunday.getMonth()+1).padStart(2,'0')}-${String(sunday.getDate()).padStart(2,'0')}`;
+
+        const res = await fetch(`/api/workouts?google_id=${encodeURIComponent(token)}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) return 0;
+        const sessions = await res.json();
+        let count = 0;
+        sessions.forEach(s => {
+            if (s.rest_day && s.date >= mondayStr && s.date <= sundayStr) {
+                count++;
+            }
+        });
+        return count;
+    } catch (e) {
+        console.error('Failed to count rest days:', e);
+        return 0;
+    }
+}
+
+async function markDayRest(dayId) {
+    const dayContainer = document.getElementById(dayId);
+    if (!dayContainer) return;
+
+    const restDaysThisWeek = await getRestDaysThisWeek();
+    if (restDaysThisWeek >= 1) {
+        const confirmMsg = `You already have ${restDaysThisWeek} rest day(s) logged this week. Are you sure you want to mark another rest day?`;
+        if (!confirm(confirmMsg)) return;
+    }
+
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
+    const token = localStorage.getItem('google_id_token');
+    const statusDiv = dayContainer.querySelector(`#${dayId}-completion-status`);
+    if (!statusDiv) return;
+    statusDiv.textContent = 'Saving...';
+    statusDiv.style.color = 'var(--color-text-secondary)';
+    statusDiv.style.fontWeight = 'normal';
+    statusDiv.style.marginTop = '1rem';
+
+    try {
+        const res = await fetch('/api/workouts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+            },
+            body: JSON.stringify({ date: dateStr, exercises: [], completion_pct: 0, rest_day: true, google_id: token })
+        });
+
+        if (res.ok) {
+            statusDiv.textContent = 'Rest day logged 🧘';
+            statusDiv.style.color = 'var(--color-accent)';
+            statusDiv.style.fontWeight = 'bold';
+            const btn = dayContainer.querySelector(`#${dayId}-complete-btn`);
+            if (btn) btn.disabled = true;
+            const restBtn = dayContainer.querySelector(`#${dayId}-rest-btn`);
+            if (restBtn) restBtn.disabled = true;
+            fetchLockInStats();
+            initializeCalendar();
+        } else {
+            const err = await res.json().catch(() => ({}));
+            statusDiv.textContent = `Error: ${err.error || 'Failed to save'}`;
+            statusDiv.style.color = 'red';
+        }
+    } catch (e) {
+        statusDiv.textContent = 'Network error. Check your connection.';
+        statusDiv.style.color = 'red';
     }
 }
 
@@ -780,7 +1112,7 @@ async function showWorkoutDetail(date) {
     const token = localStorage.getItem('google_id_token');
     if (!token) return;
 
-    const response = await fetch(`/api/workouts?date=${date}`, {
+    const response = await fetch(`/api/workouts?date=${date}&google_id=${encodeURIComponent(token)}`, {
         headers: { 'Authorization': `Bearer ${token}` }
     });
 
@@ -806,7 +1138,6 @@ async function showWorkoutDetail(date) {
                     <th>Exercise</th>
                     <th>Sets</th>
                     <th>Reps</th>
-                    <th>Animation</th>
                 </tr>
             </thead>
             <tbody>
@@ -816,41 +1147,14 @@ async function showWorkoutDetail(date) {
         tableHtml += `
             <tr>
                 <td>${ex.exercise_name}</td>
-                <td>${ex.sets}</td>
-                <td>${ex.reps}</td>
-                <td><img src="https://wger.de/static/images/icons/play-circle.svg" class="animation-icon"></td>
+                <td>${ex.sets ?? '—'}</td>
+                <td>${ex.reps ?? '—'}</td>
             </tr>
-            <tr class="animation-row" style="display: none;"><td colspan="4"><div class="animation-container"></div></td></tr>
         `;
     });
     
     tableHtml += '</tbody></table>';
     modalBody.innerHTML = tableHtml;
-
-    // Add event listeners for animation icons
-    modalBody.querySelectorAll('.animation-icon').forEach(icon => {
-        icon.addEventListener('click', () => {
-            const row = icon.closest('tr');
-            const exerciseName = row.cells[0].innerText;
-            const animationRow = row.nextElementSibling;
-            
-            // Toggle display of animation row
-            if (animationRow.style.display === 'none') {
-                // Hide any other visible animation rows
-                modalBody.querySelectorAll('.animation-row').forEach(ar => {
-                    if (ar !== animationRow) {
-                        ar.style.display = 'none';
-                    }
-                });
-                
-                animationRow.style.display = 'table-row';
-                const animationContainer = animationRow.querySelector('.animation-container');
-                showAnimation(exerciseName, animationContainer);
-            } else {
-                animationRow.style.display = 'none';
-            }
-        });
-    });
 
     document.getElementById('workout-modal').style.display = 'flex';
 }
@@ -979,13 +1283,14 @@ function initializeCalendar() {
         // Fetch workout data for the month
         let workoutData = {};
         if (localStorage.getItem('google_id_token')) {
-            const response = await fetch(`/api/workouts?month=${year}-${String(month + 1).padStart(2, '0')}`, {
+            const token = localStorage.getItem('google_id_token');
+        const response = await fetch(`/api/workouts?month=${year}-${String(month + 1).padStart(2, '0')}&google_id=${encodeURIComponent(token || '')}`, {
                 headers: getAuthHeaders()
             });
             if (response.ok) {
                 const sessions = await response.json();
                 sessions.forEach(session => {
-                    workoutData[session.date] = 'workout';
+                    workoutData[session.date] = { completion_pct: session.completion_pct, rest_day: session.rest_day };
                 });
             }
         }
@@ -1002,13 +1307,19 @@ function initializeCalendar() {
 
             const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
-            if (workoutData[dateString]) {
-                dayCell.classList.add(workoutData[dateString]);
+            if (workoutData[dateString] != null) {
+                const data = workoutData[dateString];
+                if (data.rest_day) {
+                    dayCell.classList.add('rest');
+                } else if (data.completion_pct >= 100) {
+                    dayCell.classList.add('workout');
+                } else {
+                    dayCell.classList.add('partial');
+                }
                 dayCell.style.cursor = 'pointer';
                 dayCell.addEventListener('click', () => showWorkoutDetail(dateString));
             } else if (new Date(dateString) < new Date(todayString)) {
-                // You can decide what to do with past days without workouts
-                // For now, we'll just leave them plain
+                dayCell.classList.add('missed');
             }
             
             if (dateString === todayString) {
@@ -1040,12 +1351,17 @@ function initializeCalendar() {
         if (event.target == document.getElementById('workout-modal')) {
             document.getElementById('workout-modal').style.display = 'none';
         }
+        if (event.target == document.getElementById('inbody-modal')) {
+            closeInBodyModal();
+        }
     });
 }
 
 window.onload = () => {
     setupTodaysWorkout();
     initializeCalendar();
+    fetchLockInStats();
+    fetchInBodyData();
     
     // Initialize Google Sign-In IMMEDIATELY without awaiting wger API
     google.accounts.id.initialize({
@@ -1093,10 +1409,13 @@ async function handleCredentialResponse(response) {
 
     // Re-render calendar with user's data
     initializeCalendar();
+    fetchLockInStats();
+    fetchInBodyData();
 }
 
 function signOut() {
     localStorage.removeItem('google_id_token');
+    document.getElementById('streak-badge').style.display = 'none';
     // Optional: Revoke token with Google
     // google.accounts.id.revoke(localStorage.getItem('google_user_email'), done => {
     //     console.log('consent revoked');
@@ -1115,3 +1434,5 @@ function signOut() {
 }
 </script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+</body>
+</html>
